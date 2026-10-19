@@ -1,7 +1,7 @@
-"""Entry point: python run.py [1 2 3 4 2f | all]
+"""Entry point: python run.py [1 2 3 4 2f 2p | all]
 
 Each call writes a new results/<run_id>/ folder. `all` also refreshes lab/data.js.
-2f is the exploratory Idea 2 follow-up (protocol amendment 2).
+2f = exploratory Idea 2 follow-up (amendment 2); 2p = Idea 2 Phase 2 (protocols/idea2_phase2.md).
 """
 import argparse
 import json
@@ -15,6 +15,7 @@ IDEAS = {
     "3": ("kv_fast_weights", "nightshift.kv_fast_weights"),
     "4": ("mdl_empathy", "nightshift.mdl_empathy"),
     "2f": ("dark_matter_followup", "nightshift.dark_matter", "followup"),
+    "2p": ("dark_matter_phase2", "nightshift.phase2"),
 }
 
 
