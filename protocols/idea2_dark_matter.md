@@ -29,3 +29,6 @@ This toy is true by construction. It shows the mechanism can exist, not that LLM
 ## Caveats
 - Neurons are not SAE features. The hypothesis is about features, so this is an approximation using neurons.
 - 24 passages, one model, no significance testing.
+
+## Amendment 1 — 2026-10-19, added before the first run
+- Exploratory control, not a prediction: a sign-shuffled baseline C_shuf. It is C recomputed after randomly flipping the signs of a_S, which keeps the magnitudes but breaks the phase alignment. P2 is judged against the fixed 1.2 as written. C_shuf is reported next to it so readers can see how far C would sit above 1 by chance.
