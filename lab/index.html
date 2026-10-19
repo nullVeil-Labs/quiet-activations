@@ -220,7 +220,7 @@ function lineChart(id, series, {xlog = false, xlabels = null, hline = null} = {}
     const parts = loud.concat(quiet.map(q => ({...q, ph: align.checked ? 0 : q.ph}))).filter(p => p.a >= t0);
     const N = 600, sig = [];
     for (let k = 0; k < N; k++) { const t = k / N; sig.push(parts.reduce((acc, p) => acc + p.a * Math.cos(6.283 * p.f * (t - 0.5) + p.ph), 0)); }
-    const m = 9; ctx.strokeStyle = css('--accent'); ctx.lineWidth = 1.6; ctx.beginPath();
+    const m = 13; ctx.strokeStyle = css('--accent'); ctx.lineWidth = 1.6; ctx.beginPath();
     sig.forEach((v, k) => { const x = k / N * w, y = h / 2 - v / m * (h / 2 - 8); k ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }); ctx.stroke();
     const kept = parts.length - 5, peak = Math.max(...sig.map(Math.abs));
     document.getElementById('toy2txt').textContent =

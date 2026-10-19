@@ -80,12 +80,12 @@ class Ablator:
         small = a.abs() < self.tau
         if self.mode == "thresh":
             mask = small
-        else:  # mass-matched random
+        else:  # mass-matched random; "random" includes the crossing entry, "random_under" stops before it
             sq = a.float() ** 2
             target = (sq * small).sum(-1, keepdim=True)
             perm = torch.argsort(torch.rand(sq.shape, generator=self.gen, device="cpu").to(a.device), dim=-1)
             sq_p = torch.gather(sq, -1, perm)
-            take_p = (sq_p.cumsum(-1) - sq_p) < target
+            take_p = (sq_p.cumsum(-1) - sq_p) < target if self.mode == "random" else sq_p.cumsum(-1) <= target
             mask = torch.zeros_like(small).scatter(-1, perm, take_p)
         self.stats.append(((mask.float().mean()).item(),
                            ((a.float() ** 2 * mask).sum() / (a.float() ** 2).sum()).item()))
@@ -182,6 +182,35 @@ def run(out_dir):
     }
     save_json(out_dir / "idea2_dark_matter.json", results)
     plot(out_dir, results)
+    return results
+
+
+def followup(out_dir):
+    """Amendment 2 (exploratory): random control that removes <= THRESH's L2 mass."""
+    model, tok = load_model()
+    clean = [mean_ce(model, tok, t) for t in TEXTS]
+    abl = Ablator(model)
+    rows = []
+    try:
+        for tau in THRESHOLDS:
+            abl.tau = tau
+            abl.mode, abl.stats = "thresh", []
+            thr = float(np.mean([mean_ce(model, tok, t) - c for t, c in zip(TEXTS, clean)]))
+            thr_l2 = float(np.mean(abl.stats, axis=0)[1])
+            under = []
+            for seed in SEEDS:
+                abl.mode, abl.stats = "random_under", []
+                abl.gen = torch.Generator(device="cpu").manual_seed(seed)
+                d = float(np.mean([mean_ce(model, tok, t) - c for t, c in zip(TEXTS, clean)]))
+                st = np.mean(abl.stats, axis=0)
+                under.append({"seed": seed, "dCE_mean": d, "frac_entries_zeroed": float(st[0]), "frac_L2sq_removed": float(st[1])})
+            rows.append({"tau": tau, "thresh_dCE_mean": thr, "thresh_frac_L2sq_removed": thr_l2, "random_under": under})
+    finally:
+        abl.remove()
+    results = {"note": "Exploratory (protocol amendment 2). Not a confirmatory test.", "rows": rows,
+               "random_under_still_costlier_at_0.2_every_seed": all(
+                   s["dCE_mean"] > rows[-1]["thresh_dCE_mean"] for s in rows[-1]["random_under"])}
+    save_json(out_dir / "idea2_followup_under_matched.json", results)
     return results
 
 
