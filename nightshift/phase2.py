@@ -65,6 +65,7 @@ def load(name):
     # Gemma needs BOS and its tokenizer here does not add it; Qwen base uses no BOS.
     bos = tok.bos_token_id
     tok.prefix_bos = "gemma" in name and bos is not None and tok("x").input_ids[0] != bos
+    model.nightshift_layers = layers  # used by phase3; no effect on phase2
     return model, tok, [l.mlp.down_proj for l in layers]
 
 
