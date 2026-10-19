@@ -113,6 +113,7 @@ footer { color: var(--muted); font-size: 13px; margin-top: 32px; }
   <table id="p3tab" style="margin-top:12px"></table>
   <div class="chips" id="chips3p"></div>
   <div class="note"><b>⚠️ Correction (2026-10-20):</b> Gemma 3's layer-11 spike is a calibration artifact. At that layer every activation was counted as "quiet", so the whole MLP was deleted. With outliers excluded, Gemma 3's effect vanishes (+0.019 [−0.007, 0.048]), while Qwen3's holds (+0.032 [0.025, 0.040]). The effect stands in <b>Qwen3 only</b>. The emotion test came back <b>not supported</b>.</div>
+  <div class="note"><b>Phase 4 (2026-10-20):</b> it is a <b>base-model</b> effect. Qwen3-1.7B-Base: quiet − mid = +0.040 [0.037, 0.044]. The same model after instruction tuning: +0.008 [−0.003, 0.023] (paired drop +0.032 [0.019, 0.043]). Post-training appears to move reliance from the quiet tail to mid-tier activations. Gemini's output-norm hypothesis was not supported: quiet contributions are mostly directional, not size changes.</div>
 </section>
 
 <section id="s3">

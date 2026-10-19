@@ -125,11 +125,53 @@ Plan: `protocols/idea2_layer11_exploratory.md`, committed before each run.
 - **Layer-11 run** (`results/20261020-015453-ideas2l`): at layer 11, ‖q‖/‖w‖ = 1.000 and cos(q, w) = 1.000, and all 10,240 neurons were "quiet" on 100% of tokens. The "quiet write" *is* the whole MLP output there. Zeroing it costs 0.449 nats, and replacing it with its corpus mean costs −0.008, i.e. ≈ clean. In that layer, then, the MLP's contribution behaves mostly like a constant offset. That is a statement about layer 11's MLP, not about quiet activations. The token, direction and logit-lens readouts are saved but not interpreted, because they describe the whole MLP rather than a quiet tail.
 - **Artifact check** (`results/20261020-015709-ideas2a`): see the correction notice above.
 
-**Where Idea 2 stands now:** in Qwen3-1.7B-Base, the many quiet MLP activations matter about 2× more than an equal energy of mid-tier activations. That held across four tests: run-1 follow-up, Phase 2, Phase 3, and the outlier-excluded check. It does not generalize to Gemma 3 (no clear effect) or Gemma 4 (reversed). There is no evidence that it is affect-specific.
+**Where Idea 2 stood after the correction:** in Qwen3-1.7B-Base, the many quiet MLP activations matter about 2× more than an equal energy of mid-tier activations. That held across four tests: run-1 follow-up, Phase 2, Phase 3, and the outlier-excluded check. It did not generalize to Gemma 3 (no clear effect) or Gemma 4 (reversed). There is no evidence that it is affect-specific.
+
+## Idea 2, Phase 4 — training or architecture? · P4A1 ✓ · verdict "training removes it" · P4B ✗ · [real]
+Run `results/20261020-023743-ideas2r`. Protocol `protocols/idea2_phase4.md`, frozen with its code at commit 4d86036.
+- The quiet set uses the outlier-excluded definition.
+- A guard skips layers where quiet covers more than 95% of non-outlier entries. That was layer 27 in both Qwen models (96%), and Gemma 3's layer 11 in Part B.
+- 200 fresh chunks for Part A, 20 for Part B.
+- The question came from the author's observation that the effect appeared only in a *base* model, while both Gemmas are *instruction-tuned*.
+
+**A. Base vs instruct, same architecture (Qwen3-1.7B):**
+
+| | Qwen3-1.7B-Base | Qwen3-1.7B (instruct) |
+|---|---|---|
+| clean CE | 2.876 | 3.431 |
+| ΔCE quiet / mid | 0.065 / 0.025 | 0.050 / 0.042 |
+| **D = quiet − mid** | **+0.040** [0.037, 0.044] | **+0.008** [−0.003, 0.023] |
+| D / clean CE | 1.4% | 0.24% |
+| chunks with D > 0 | 94% | 57% |
+
+- **P4A1 ✓.** The base model replicates, the fifth consistent result for Qwen3-Base.
+- **Instruct:** D is no longer distinguishable from 0. The paired difference is **ΔD = +0.032 [0.019, 0.043]**. By the pre-registered rule, the verdict is **"training removes it"**. More precisely, post-training reduced it by about 80%, to below detection. It is not shown to be exactly zero.
+- The shift comes from both sides: quiet deletion hurts the instruct model a bit less (0.065 → 0.050), and mid-tier deletion hurts it clearly more (0.025 → 0.042). Post-training appears to move reliance *from* the quiet tail *toward* mid-tier activations.
+- **Robustness checks** (post-run, not pre-registered):
+  - The gap holds in each book separately. Base: D = 0.040 / 0.040. Instruct: 0.009 / 0.007.
+  - Quiet and mid deletion are energy-matched in both models: mid removes 0.979 × the quiet energy in each.
+- **Caveat:** CE on raw book text is not what instruct models are trained for. The relative D also falls (1.4% → 0.24%), so a worse baseline alone does not explain the drop, but the task mismatch remains.
+
+**B. Would an output norm absorb quiet contributions? (observational, clean passes only) — P4B ✗**
+
+| | post-FFN norm | median radial share ρ: quiet / mid | ratio |
+|---|---|---|---|
+| Qwen3-1.7B-Base | no | 0.034 / 0.026 | 1.32 |
+| Qwen3-1.7B | no | 0.035 / 0.027 | 1.30 |
+| Gemma-3-4B-it | yes | 0.066 / 0.057 | 1.15 |
+| Gemma-4-E4B-it | yes | 0.088 / 0.077 | 1.14 |
+
+- Only 3–9% of either kind of contribution lies along the MLP output's own direction. Both quiet and mid-tier contributions are overwhelmingly *directional*, and an RMSNorm cannot absorb directional change.
+- The norm-absorption explanation (Gemini's hypothesis) loses its simplest mechanism. Gemma 4's early layers are an exception, with ratios of 2.8–5.0 in layers 0–9, which is worth a look but outside the prediction.
+
+**Where Idea 2 stands now:**
+- In Qwen3-1.7B, quiet MLP activations carry about 2× more weight than an equal energy of mid-tier activations **in the base model**, and **post-training largely removes this**, shifting reliance toward mid-tier activations.
+- The two instruction-tuned Gemmas also show no positive effect, which is consistent with a training explanation. Without a Gemma *base* model, architecture is not ruled out for them.
+- No evidence the signal is affect-specific. Neurons, not SAE features.
 
 ## Next steps
-1. Phase 4 (confirmatory): the outlier-excluded quiet definition, more models (other SwiGLU base models), and a difference criterion. Is Qwen3 a special case, or part of a pattern?
-2. Why Qwen3? Compare the architecture (no post-FFN norm, unlike both Gemmas) and test it causally.
-3. Part C at higher power, then SAE features instead of neurons.
+1. The mirror test: a Gemma **base** model (gated; needs a licence acceptance). If it shows the effect, the training explanation generalizes across families.
+2. More base/instruct pairs (e.g. other open families, larger Qwen3 sizes) to see whether "post-training shrinks the quiet tail's role" is a pattern.
+3. *What* the quiet tail does in base models that post-training removes: e.g. its effect on the calibration and entropy of next-token predictions. Then SAE features instead of neurons.
 2. Idea 1: fit one shared vector field against layer-specific fits to the real residual updates, scored on held-out error (open per RELATED_WORK.md).
 3. Idea 4 on a real model: measure the participation ratio of emotion representations across model sizes or checkpoints.
