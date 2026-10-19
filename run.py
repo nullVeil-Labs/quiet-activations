@@ -1,7 +1,7 @@
-"""Entry point: python run.py [1 2 3 4 2f 2p 2q | all]
+"""Entry point: python run.py [1 2 3 4 2f 2p 2q 2l | all]
 
 Each call writes a new results/<run_id>/ folder. `all` also refreshes lab/data.js.
-2f = exploratory Idea 2 follow-up (amendment 2); 2p = Idea 2 Phase 2; 2q = Idea 2 Phase 3 (protocols/idea2_phase*.md).
+2f = exploratory Idea 2 follow-up (amendment 2); 2p = Idea 2 Phase 2; 2q = Idea 2 Phase 3; 2l = Gemma 3 layer 11, exploratory (protocols/idea2_*.md).
 """
 import argparse
 import json
@@ -17,6 +17,7 @@ IDEAS = {
     "2f": ("dark_matter_followup", "nightshift.dark_matter", "followup"),
     "2p": ("dark_matter_phase2", "nightshift.phase2"),
     "2q": ("dark_matter_phase3", "nightshift.phase3"),
+    "2l": ("dark_matter_layer11", "nightshift.layer11"),
 }
 
 
