@@ -51,4 +51,7 @@ See [`AGENTS.md`](AGENTS.md). In short:
 - Toys show what is possible, not what models do.
 - Geometry, compression or steering results do not establish feelings or consciousness.
 
+## Acknowledgements
+The four hypotheses were proposed by the nullVeil Labs author together with **Gemini** (Google), who also designed the quiet-vs-mid-tier energy-matched contrast used in Phase 2. **Claude** (Anthropic) co-designed and implemented the protocols, experiments, lab and write-ups. The work was done by the three of us together.
+
 MIT licensed.
