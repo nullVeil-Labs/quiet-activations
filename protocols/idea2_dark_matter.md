@@ -32,3 +32,7 @@ This toy is true by construction. It shows the mechanism can exist, not that LLM
 
 ## Amendment 1 — 2026-10-19, added before the first run
 - Exploratory control, not a prediction: a sign-shuffled baseline C_shuf. It is C recomputed after randomly flipping the signs of a_S, which keeps the magnitudes but breaks the phase alignment. P2 is judged against the fixed 1.2 as written. C_shuf is reported next to it so readers can see how far C would sit above 1 by chance.
+
+## Amendment 2 — 2026-10-19, written AFTER run 20261019-191428 (exploratory)
+In that run the "mass-matched" random control removed about 1.5× more L2² than THRESH: 6.7–6.9% vs 4.5% at τ = 0.2. The cause is the frozen rule that includes the crossing entry, which is sometimes a large outlier. The pre-registered P1 verdict for that run stands as recorded.
+Exploratory follow-up (`python run.py 2f`): the same comparison, but the random draw stops *before* the crossing entry, so it removes ≤ THRESH's L2². This tilts the comparison in THRESH's favour. If random ablation still costs more than THRESH, the run-1 conclusion is robust to the mismatch. This follow-up is not a confirmatory test.
