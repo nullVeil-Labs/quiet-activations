@@ -191,3 +191,68 @@ def run(out_dir):
         torch.cuda.empty_cache()
     save_json(out_dir / "idea2_layer11.json", res)
     return res
+
+
+class NoOutlierHook(p2.Hook):
+    """Quiet set redefined as |a| < tau AND not a top-1% outlier (same exclusion as the controls)."""
+
+    def make(self, li):
+        inner = super().make(li)
+
+        def hook(module, args, output):
+            if self.mode in ("thresh_no", "mid_no"):
+                a = args[0].float()
+                k = int(np.ceil(p2.OUTLIER_Q * a.shape[-1]))
+                cut = a.abs().kthvalue(k, dim=-1, keepdim=True).values
+                outlier = a.abs() > cut
+                S = (a.abs() < self.tau[li]) & ~outlier
+                if self.mode == "thresh_no":
+                    take = S
+                else:
+                    sq = a ** 2
+                    E = (sq * S).sum(-1, keepdim=True)
+                    pool = ~S & ~outlier
+                    keys = torch.rand(a.shape, generator=self.gen).to(a.device)
+                    keys[~pool] = 2.0
+                    perm = keys.argsort(-1)
+                    sq_p = sq.gather(-1, perm)
+                    take = torch.zeros_like(S).scatter(-1, perm, (sq_p.cumsum(-1) <= E) & pool.gather(-1, perm))
+                return (output.float() + F.linear(-a * take, module.weight.float())).to(output.dtype)
+            return inner(module, args, output)
+        return hook
+
+
+def artifact_check(out_dir):
+    """Addendum: does Gemma 3's quiet effect survive when the quiet set may not contain outliers?"""
+    calib, evals = texts()
+    res = {}
+    for name in ["qwen3-1.7b-base", "gemma-3-4b-it"]:
+        model, tok, downs = p2.load(name)
+        h = NoOutlierHook(downs)
+        try:
+            tau = p2.calibrate(model, tok, h, calib)
+            h.mode = None
+            clean = p2.ce_per_text(model, tok, evals)
+            d = {}
+            for mode, seeds in [("thresh", (None,)), ("mid", p2.SEEDS), ("thresh_no", (None,)), ("mid_no", p2.SEEDS)]:
+                runs = []
+                for s in seeds:
+                    h.mode, h.tau, h.stats = mode, tau, []
+                    h.gen = torch.Generator().manual_seed(s) if s is not None else None
+                    runs.append(p2.ce_per_text(model, tok, evals) - clean)
+                d[mode] = np.mean(runs, axis=0)
+            h.mode = None
+            boot = lambda x: (float(x.mean()), [float(v) for v in np.percentile(
+                x[np.random.default_rng(0).integers(0, len(x), (p2.N_BOOT, len(x)))].mean(1), [2.5, 97.5])])
+            res[name] = {"dCE_mean": {k: float(v.mean()) for k, v in d.items()},
+                         "per_chunk": {k: v.tolist() for k, v in d.items()},
+                         "D_original": boot(d["thresh"] - d["mid"]),
+                         "D_outliers_excluded": boot(d["thresh_no"] - d["mid_no"])}
+            print(f"  {name}: D original {res[name]['D_original']} | D no-outlier {res[name]['D_outliers_excluded']}")
+        finally:
+            h.remove()
+            del model
+            torch.cuda.empty_cache()
+    out = {"note": "Exploratory addendum (protocols/idea2_layer11_exploratory.md).", "n_eval": len(evals), "models": res}
+    save_json(out_dir / "idea2_artifact_check.json", out)
+    return out

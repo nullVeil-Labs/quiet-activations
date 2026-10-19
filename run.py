@@ -18,6 +18,7 @@ IDEAS = {
     "2p": ("dark_matter_phase2", "nightshift.phase2"),
     "2q": ("dark_matter_phase3", "nightshift.phase3"),
     "2l": ("dark_matter_layer11", "nightshift.layer11"),
+    "2a": ("dark_matter_artifact_check", "nightshift.layer11", "artifact_check"),
 }
 
 

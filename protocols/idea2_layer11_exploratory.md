@@ -21,3 +21,11 @@ In Phase 3 Part B (run 20261019-201109), deleting quiet MLP activations at layer
    Report ΔCE for each. If MEANQ ≈ clean, the effect is a constant offset.
 5. **Which neurons:** how often each neuron is quiet. Count neurons that are quiet ≥ 99% of tokens, and their share of ‖q‖².
 6. **What it says:** a logit lens on q̄ through the final norm and unembedding, top-15 promoted and suppressed tokens. A direct read, so treat it as suggestive only.
+
+## Addendum — 2026-10-20, written after the layer-11 run (exploratory)
+The layer-11 run found τ_11 = 17.4 for Gemma 3: **every** activation at layer 11 counted as quiet, including the top-1% outliers. So THRESH at that layer deleted the whole MLP, while the RAND/MID controls exclude outliers. A diagnostic on calibration chunks found this in Gemma-3 layer 11 only: 0/28 Qwen3 layers and 0/42 Gemma-4 layers are affected. Position 0 is not the cause (its max |a| at L11 is 0.9).
+Artifact check (`python run.py 2a`): on the same 40 layer-11 chunks, for Qwen3 and Gemma 3, compare all-layer THRESH with all-layer MID (seeds 0–2) under two quiet definitions:
+- (i) the original |a| < τ_l;
+- (ii) **|a| < τ_l and not an outlier**, the same exclusion the controls use. E is recomputed from (ii).
+
+If Gemma 3's quiet-minus-mid difference disappears under (ii), its Phase 2/3 result was an artifact of layer 11. Exploratory: a definitive answer needs a frozen Phase 4.
