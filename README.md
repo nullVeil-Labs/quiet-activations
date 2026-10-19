@@ -35,7 +35,12 @@ python -m venv .venv
 .venv/Scripts/python -m pip install -r requirements.txt   # Linux/macOS: .venv/bin/python
 python run.py all      # ideas 1-4, refreshes lab/data.js
 python run.py 2f       # exploratory Idea 2 follow-up
+python run.py 2p       # Idea 2 Phase 2 (needs the Gemma models and data/, see below)
 ```
+Phase 2 also needs:
+- `models/gemma-3-4b-it/` (`google/gemma-3-4b-it`, Gemma license)
+- `models/gemma-4/` (`google/gemma-4-E4B-it`)
+- `data/pg1342.txt` and `data/pg1228.txt` from `https://www.gutenberg.org/cache/epub/<id>/pg<id>.txt` (sha256 in `protocols/idea2_phase2.md`)
 Ideas 1–3 need the model weights; Idea 4 and the toy parts don't.
 Download **Qwen3-1.7B-Base** from Hugging Face (`Qwen/Qwen3-1.7B-Base`) into `models/qwen3-1.7b-base/`. The weights are not included in this repo.
 A CUDA GPU is recommended; one RTX 4090 runs everything in a few minutes.
