@@ -14,6 +14,7 @@ MODELS = {
     "gemma-3-4b-it": ROOT / "models" / "gemma-3-4b-it",
     "gemma-4": ROOT / "models" / "gemma-4",  # google/gemma-4-E4B-it
 }
+EXTRA_MODELS = {"qwen3-1.7b": ROOT / "models" / "qwen3-1.7b"}  # used by later phases, not by phase 2's run()
 BOOKS = [ROOT / "data" / "pg1342.txt", ROOT / "data" / "pg1228.txt"]
 N_CALIB, N_EVAL, MAX_TOKENS = 20, 100, 256  # per book
 ENERGY_FRAC = 0.05
@@ -51,7 +52,7 @@ def corpus():
 def load(name):
     from transformers import AutoConfig, AutoModelForCausalLM, AutoModelForImageTextToText, AutoTokenizer
 
-    path = MODELS[name]
+    path = MODELS.get(name) or EXTRA_MODELS[name]
     cfg = AutoConfig.from_pretrained(path)
     cls = AutoModelForImageTextToText if "ConditionalGeneration" in cfg.architectures[0] else AutoModelForCausalLM
     model = cls.from_pretrained(path, dtype=torch.bfloat16, attn_implementation="eager").to("cuda").eval()
