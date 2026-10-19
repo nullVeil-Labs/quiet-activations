@@ -99,6 +99,12 @@ footer { color: var(--muted); font-size: 13px; margin-top: 32px; }
     <div><b>Coherence of the quiet sum per layer</b><svg id="coh2" height="200"></svg></div>
   </div>
   <div class="chips" id="chips2"></div>
+  <h3 style="margin:22px 0 4px">Phase 2: pre-registered replication on 3 models</h3>
+  <p class="q">200 held-out book passages. Every condition removes the same energy E (5% of each layer's non-outlier energy), so only <i>which</i> entries are removed differs. Run <span class="mono" id="p2run"></span>.</p>
+  <svg id="p2" height="260"></svg>
+  <div class="legend" id="p2leg"></div>
+  <div class="chips" id="chips2p"></div>
+  <div class="note"><b>Not replicated as registered.</b> Model-dependent: in Qwen3, quiet activations hurt ~2× more than the matched controls. In Gemma 3 they hurt while the controls do nothing. In Gemma 4 there is no effect.</div>
 </section>
 
 <section id="s3">
@@ -132,6 +138,7 @@ footer { color: var(--muted); font-size: 13px; margin-top: 32px; }
 <footer>Night Shift R&amp;D · protocols frozen before runs · <span id="duck" title="debugging duck">🦆</span></footer>
 </main>
 <script src="data.js" onerror="document.getElementById('nodata').hidden=false"></script>
+<script src="phase2.js"></script>
 <script>
 const D = window.DATA || null;
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
@@ -243,6 +250,35 @@ function lineChart(id, series, {xlog = false, xlabels = null, hline = null} = {}
   document.getElementById('dce2').insertAdjacentHTML('afterend', `<div class="legend"><span><i style="background:${css('--accent')}"></i>threshold |a|&lt;τ</span><span><i style="background:${css('--accent2')}"></i>random, same L2 mass</span></div>`);
   document.getElementById('coh2').insertAdjacentHTML('afterend', `<div class="legend"><span><i style="background:${css('--accent')}"></i>real</span><span><i style="background:${css('--accent2')}"></i>signs shuffled</span></div>`);
   chips('chips2', r.predictions);
+})();
+
+/* ---------- Idea 2 Phase 2 ---------- */
+(function () {
+  const P = window.PHASE2; if (!P) return;
+  document.getElementById('p2run').textContent = window.PHASE2_RUN;
+  const conds = [['thresh', 'quiet (THRESH)', '--accent'], ['rand', 'random, same E', '--accent2'], ['mid', 'mid-tier, same E', '--g4'], ['mean', 'mean-ablate quiet', '--g1'], ['noise', 'noise, same size', '--muted']];
+  const models = Object.entries(P.models).filter(([, m]) => !m.error);
+  function draw() {
+    const svg = document.getElementById('p2'), W = svg.clientWidth || 600, H = +svg.getAttribute('height'), pad = {l: 44, r: 8, t: 10, b: 30};
+    const vals = models.flatMap(([, m]) => conds.map(([c]) => m.conditions[c].dCE_mean));
+    const hi = Math.max(...vals, 0) * 1.1, lo = Math.min(...vals, 0) * 1.1;
+    const Y = v => pad.t + (hi - v) / (hi - lo) * (H - pad.t - pad.b);
+    const gw = (W - pad.l - pad.r) / models.length, bw = gw * 0.8 / conds.length;
+    let out = `<line x1="${pad.l}" x2="${W - pad.r}" y1="${Y(0)}" y2="${Y(0)}" stroke="${css('--muted')}"/>`;
+    for (const t of [lo, 0, hi]) out += `<text x="${pad.l - 4}" y="${Y(t) + 4}" font-size="10" text-anchor="end" fill="${css('--muted')}">${t.toFixed(2)}</text>`;
+    models.forEach(([name, m], gi) => {
+      conds.forEach(([c, label, col], ci) => {
+        const v = m.conditions[c].dCE_mean, x = pad.l + gi * gw + gw * 0.1 + ci * bw;
+        out += `<rect x="${x}" y="${Math.min(Y(v), Y(0))}" width="${bw - 2}" height="${Math.max(1, Math.abs(Y(v) - Y(0)))}" fill="${css(col)}"><title>${name} · ${label}: ΔCE ${v.toFixed(4)}</title></rect>`;
+      });
+      out += `<text x="${pad.l + gi * gw + gw / 2}" y="${H - 10}" font-size="12" text-anchor="middle" fill="${css('--ink')}">${name}</text>`;
+    });
+    out += `<text x="10" y="${pad.t + 10}" font-size="10" fill="${css('--muted')}">ΔCE (nats)</text>`;
+    svg.innerHTML = out;
+  }
+  document.getElementById('p2leg').innerHTML = conds.map(([, l, c]) => `<span><i style="background:${css(c)}"></i>${l}</span>`).join('');
+  draw(); addEventListener('resize', draw);
+  chips('chips2p', P.predictions);
 })();
 
 /* ---------- Idea 3 toy ---------- */
