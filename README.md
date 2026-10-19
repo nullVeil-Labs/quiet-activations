@@ -1,6 +1,6 @@
-# Night Shift R&D
+# Quiet Activations
 
-Small, honest experiments on four interpretability hypotheses about LLMs:
+Do the many small ("quiet") MLP activations in LLMs matter more than their size suggests? In some models they do, and in one they don't. This repo started as small, honest experiments on four interpretability hypotheses (internally, "Night Shift R&D"). Idea 2 grew into the main study:
 1. Reasoning as trajectories.
 2. Sub-threshold "dark matter".
 3. The KV-cache as temporary weights.
