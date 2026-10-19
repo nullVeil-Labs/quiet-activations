@@ -39,3 +39,19 @@ Searched 2026-10-19 (arXiv, OpenReview, Alignment Forum/LessWrong, lab blogs). E
 - Zhang & Zhong, *Decoding Emotion in the Deep*, arXiv 2510.04064 (preprint).
 - Zhu et al., *Language Models Represent Beliefs of Self and Others*, arXiv 2402.18496.
 - **Still open:** an MDL account of *why* the rank should be low, and rank measured across model scale or training checkpoints.
+
+## Q5. Base vs instruct and the quiet tail (Phase 4) — no close prior work found
+Searched 2026-10-20. Items not opened are marked *(unverified)*.
+- **The closest specific comparison:** none found. No study we found ablates small-magnitude MLP activations against an energy-matched mid-magnitude control, or compares that between base and instruct models. Our wording: "to our knowledge, not previously reported", for one model pair.
+- **Small activations are prunable (base models only):** TEAL (Liu et al., ICLR 2025, arXiv 2408.14690) and CATS (Lee et al., arXiv 2404.08763). These are consistent with our small *absolute* costs (quiet deletion costs about 0.06 nats in Qwen3-Base). Our claim is about cost *per unit energy* relative to mid-tier activations, and the base vs instruct contrast. Neither work evaluates instruct models.
+- **Magnitude statistics after instruction tuning:** Sun et al., *Massive Activations in Large Language Models*, COLM 2024 (arXiv 2402.17762). Covers the extreme top of the distribution, not the small tail.
+- **Base/chat representation transfer:** Kissane et al., *SAEs (usually) Transfer Between Base and Chat Models*, Alignment Forum 2024. Transfer fails for Gemma v1, whose base and chat weights are unusually far apart. Possibly relevant to our Gemma nulls.
+- **Model diffing:** Lindsey et al., *Sparse Crosscoders*, transformer-circuits 2024. Minder et al., *Overcoming Sparsity Artifacts in Crosscoders to Interpret Chat-Tuning*, NeurIPS 2025 (arXiv 2504.02922).
+- **Post-training reweights existing mechanisms:** Prakash et al., *Fine-Tuning Enhances Existing Mechanisms*, ICLR 2024 (arXiv 2402.14811). Du et al., *How Post-Training Reshapes LLMs*, COLM 2025 (arXiv 2504.02904). Mukherjee et al., *RL Finetunes Small Subnetworks in LLMs*, NeurIPS 2025 (arXiv 2505.11711).
+- **Dense or low-magnitude signals are functional:** Sun, Stolfo et al., *Dense SAE Latents Are Features, Not Bugs* (above).
+- **Post-training and confidence/diversity (behavioural):**
+  - Kirk et al., *Understanding the Effects of RLHF on LLM Generalisation and Diversity*, arXiv 2310.06452.
+  - Huang et al., *The Alignment Paradox*, arXiv 2609.32617.
+  - Stolfo et al., *Confidence Regulation Neurons in Language Models*, arXiv 2406.16254 *(unverified)*.
+  - The GPT-4 Technical Report's calibration figure *(unverified in the body)*.
+  - We did **not** measure calibration or entropy. Any link to these is a hypothesis.
