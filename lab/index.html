@@ -105,6 +105,14 @@ footer { color: var(--muted); font-size: 13px; margin-top: 32px; }
   <div class="legend" id="p2leg"></div>
   <div class="chips" id="chips2p"></div>
   <div class="note"><b>Not replicated as registered.</b> Model-dependent: in Qwen3, quiet activations hurt ~2× more than the matched controls. In Gemma 3 they hurt while the controls do nothing. In Gemma 4 there is no effect.</div>
+  <h3 style="margin:22px 0 4px">Phase 3: where it lives, and does it carry emotion?</h3>
+  <p class="q">Damage from deleting quiet vs mid-tier activations (same energy), one layer at a time. Run <span class="mono" id="p3run"></span>.</p>
+  <div class="controls">model <select id="p3model"></select></div>
+  <svg id="p3" height="220"></svg>
+  <div class="legend"><span><i style="background:var(--accent)"></i>quiet, this layer only</span><span><i style="background:var(--accent2)"></i>mid-tier, this layer only</span></div>
+  <table id="p3tab" style="margin-top:12px"></table>
+  <div class="chips" id="chips3p"></div>
+  <div class="note">The effect is <b>model-specific</b>: diffuse in Qwen3, concentrated in Gemma 3's layer 11, reversed in Gemma 4. The emotion test (does quiet deletion erase feelings more than objects?) came back <b>not supported</b>.</div>
 </section>
 
 <section id="s3">
@@ -139,6 +147,7 @@ footer { color: var(--muted); font-size: 13px; margin-top: 32px; }
 </main>
 <script src="data.js" onerror="document.getElementById('nodata').hidden=false"></script>
 <script src="phase2.js"></script>
+<script src="phase3.js"></script>
 <script>
 const D = window.DATA || null;
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
@@ -279,6 +288,27 @@ function lineChart(id, series, {xlog = false, xlabels = null, hline = null} = {}
   document.getElementById('p2leg').innerHTML = conds.map(([, l, c]) => `<span><i style="background:${css(c)}"></i>${l}</span>`).join('');
   draw(); addEventListener('resize', draw);
   chips('chips2p', P.predictions);
+})();
+
+/* ---------- Idea 2 Phase 3 ---------- */
+(function () {
+  const P = window.PHASE3; if (!P) return;
+  document.getElementById('p3run').textContent = window.PHASE3_RUN;
+  const names = Object.keys(P.models), sel = document.getElementById('p3model');
+  sel.innerHTML = names.map(n => `<option>${n}</option>`).join('');
+  if (names.includes('gemma-3-4b-it')) sel.value = 'gemma-3-4b-it';
+  function draw() {
+    const B = P.models[sel.value].B;
+    lineChart('p3', [
+      {ys: B.map(r => r.thresh.dCE), color: css('--accent'), label: 'quiet'},
+      {ys: B.map(r => r.mid.dCE), color: css('--accent2'), dash: 1, label: 'mid-tier'},
+    ], {hline: 0});
+  }
+  sel.onchange = draw; addEventListener('resize', draw); draw();
+  const f = (v, d = 3) => (+v).toFixed(d), ci = ([p, [lo, hi]]) => `${f(p)} [${f(lo)}, ${f(hi)}]`;
+  document.getElementById('p3tab').innerHTML = '<tr><th>model</th><th>quiet − mid damage (A)</th><th>emotion-specific? interaction (C)</th></tr>' +
+    names.map(n => { const m = P.models[n]; return `<tr><td>${n}</td><td>${ci(m.A.diff_thresh_minus.mid)}</td><td>${f(m.C.interaction)} [${f(m.C.interaction_ci[0])}, ${f(m.C.interaction_ci[1])}]</td></tr>`; }).join('');
+  chips('chips3p', P.predictions);
 })();
 
 /* ---------- Idea 3 toy ---------- */

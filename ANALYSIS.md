@@ -78,7 +78,43 @@ Run `results/20261019-192933-ideas2p`. Protocol `protocols/idea2_phase2.md`, fro
   - The count confound remains.
   - Neurons are not SAE features.
 
+## Idea 2, Phase 3 — difference metric, layer profile, affect · PA1 ✓ PA2 ✓ PA3 ✗ PC1 ✗ · [real]
+Run `results/20261019-201109-ideas2q`. Protocol `protocols/idea2_phase3.md`, frozen with its code at commit e6732c9. Part A uses 200 fresh chunks, Part B 20, Part C 480 template sentences. Per-chunk raw ΔCE is saved.
+
+**A. Difference metric** (D = ΔCE quiet − ΔCE control, 95% bootstrap CI):
+
+| | Qwen3-1.7B | Gemma-3-4B-it | Gemma-4-E4B-it |
+|---|---|---|---|
+| ΔCE quiet / mid / rand / noise | 0.061 / 0.029 / 0.029 / 0.029 | 0.217 / 0.009 / −0.011 / 0.068 | −0.012 / 0.029 / 0.025 / 0.005 |
+| D vs MID | **+0.032** [0.028, 0.035] ✓ | **+0.208** [0.178, 0.241] ✓ | **−0.040** [−0.050, −0.030] ✗ |
+| D vs RAND | +0.031 [0.028, 0.034] | +0.228 [0.200, 0.257] | −0.037 [−0.046, −0.027] |
+| D vs NOISE | +0.031 [0.028, 0.035] | +0.150 [0.120, 0.180] | −0.016 [−0.027, −0.006] |
+
+- **Qwen3:** quiet activations matter about 2× more than an equal energy of mid-tier activations. This is the third consistent result for Qwen3 (exploratory run, Phase 2, Phase 3).
+- **Gemma 3:** confirmed and large. The controls do almost nothing, while quiet deletion costs 0.21 nats.
+- **Gemma 4:** the pre-registered null failed, **in the opposite direction**. Quiet activations matter *less* than mid-tier ones, and deleting them slightly lowers CE.
+
+**B. Layer profile (exploratory, 20 chunks, one layer ablated at a time):**
+- **Gemma 3 — one hotspot, layer 11.** Quiet deletion there alone costs **0.327 nats**, more than all layers together (0.217). Every other layer is within ±0.035. At layer 11 it changes the layer output by 10.4%, about the whole MLP write (‖write‖/‖resid‖ = 0.11), against ~1% at other layers. Layer 11's MLP output seems to be carried mostly by quiet activations. Why is open.
+- **Qwen3 — diffuse.** Single-layer quiet and mid deletion cost about the same (summed over layers: 0.061 vs 0.064). Yet with all layers ablated together, quiet costs 0.061 and mid only 0.029. Quiet-deletion damage roughly adds up across layers, while mid-tier damage partly does not. That is consistent with a quiet signal coordinated across layers. It is tentative: n = 20, and the A and B chunk sets differ.
+- **Gemma 4 — no hotspot.** Single-layer effects are small and mixed in sign: slightly harmful in layers 0–12, slightly beneficial in later layers. Its MLP writes are sometimes much larger than the residual (‖write‖/‖resid‖ up to 13 at layer 23; 7.8 at layer 0). **This data does not explain why Gemma 4 differs.** Per-layer embeddings, KV sharing and the layer scalar all remain untested hypotheses.
+
+**C. Does the quiet signal carry affect? Not supported (PC1 ✗ in both models).**
+
+| | clean d′ valence / category | retention valence: quiet / mid | retention category: quiet / mid | interaction I [95% CI] |
+|---|---|---|---|---|
+| Qwen3 (layer 19) | 4.60 / 1.73 | 0.861 / 0.864 | 0.919 / 0.912 | 0.010 [−0.078, 0.089] |
+| Gemma 3 (layer 23) | 2.11 / 1.53 | 0.928 / 1.002 | 0.983 / 0.924 | 0.134 [−0.019, 0.298] |
+| Gemma 4 (layer 28) | 5.23 / 0.99 | 1.138 / 1.045 | 1.248 / 1.094 | 0.062 [−0.123, 0.251] |
+
+- In Qwen3, quiet deletion erases valence and category information equally, with no sign of affect specificity.
+- Gemma 3's point estimate leans toward the hypothesis, but the CI includes 0. The test may be underpowered, and that is not evidence for the hypothesis.
+
+**Where Idea 2 stands:** some models (Qwen3 diffusely, Gemma 3 through one layer) depend on their many quiet MLP activations more than an equal energy elsewhere would predict. At least one model (Gemma 4) shows the reverse. We found no evidence that this signal is specifically affective.
+
 ## Next steps
-1. Phase 3, if pursued: save per-chunk ΔCE, register a **difference**-based criterion (ΔCE THRESH − ΔCE control, with a CI), and explain the Gemma 4 null. If it holds, repeat with SAE features.
+1. Gemma 3 layer 11: what do its quiet activations encode? Look at top tokens, the effect of the write direction, and whether it matches a known feature.
+2. Gemma 4: causal tests of the architecture hypotheses, e.g. ablating per-layer-input contributions, and comparing against Gemma-3n-style models.
+3. Part C at higher power: more sentence frames and natural (non-template) affective text. Then SAE features instead of neurons.
 2. Idea 1: fit one shared vector field against layer-specific fits to the real residual updates, scored on held-out error (open per RELATED_WORK.md).
 3. Idea 4 on a real model: measure the participation ratio of emotion representations across model sizes or checkpoints.

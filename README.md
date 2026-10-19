@@ -8,15 +8,15 @@ Small, honest experiments on four interpretability hypotheses about LLMs:
 
 Each protocol was frozen (committed) before its run. Failures are reported as failures.
 
-**Status (2026-10-19):** run 1 is complete for all four ideas, plus an exploratory follow-up and a pre-registered Phase 2 replication of Idea 2 on 3 models.
+**Status (2026-10-19):** run 1 is complete for all four ideas. Idea 2 also has an exploratory follow-up and two pre-registered phases on 3 models.
 - Results: [`ANALYSIS.md`](ANALYSIS.md).
 - Prior work: [`RELATED_WORK.md`](RELATED_WORK.md).
-- **Next step:** a Phase 3 Idea 2 protocol with a difference-based criterion, per-chunk raw results, and a look at why Gemma 4 shows no effect.
+- **Next step:** find what Gemma 3's layer-11 quiet activations encode, and test causally why Gemma 4 differs.
 
 | Idea | Pre-registered predictions | Headline |
 |---|---|---|
 | 1 Trajectories | 3/3 held | States sort by wording mid-network, by answer only in the last third. Consecutive layer writes are near-orthogonal. |
-| 2 Dark matter | 0/3 held, then Phase 2: 2/4 held | **Not replicated as registered.** Model-dependent: in Qwen3, quiet activations hurt ~2× more than energy-matched controls (CI excludes 1); in Gemma 3, they hurt while the controls do nothing; in Gemma 4, no effect. |
+| 2 Dark matter | run 1: 0/3 · Phase 2: 2/4 · Phase 3: 2/5 | **Model-specific.** Quiet MLP activations matter more than an equal energy of mid-tier ones in Qwen3 (diffusely, ~2×) and Gemma 3 (+0.21 nats, mostly from one layer, layer 11). The reverse holds in Gemma 4. No evidence they specifically carry affect. |
 | 3 KV as weights | 3/3 held | Exact for linear attention (known result). In Qwen3, context changes each head's local map by about its own size. Its low rank is mostly forced by short contexts, so it is not a finding. |
 | 4 Empathy as MDL | 3/3 held | A latent state model compresses best only when the world has low-dimensional structure. A toy; says nothing about feelings. |
 
@@ -36,8 +36,9 @@ python -m venv .venv
 python run.py all      # ideas 1-4, refreshes lab/data.js
 python run.py 2f       # exploratory Idea 2 follow-up
 python run.py 2p       # Idea 2 Phase 2 (needs the Gemma models and data/, see below)
+python run.py 2q       # Idea 2 Phase 3 (same requirements)
 ```
-Phase 2 also needs:
+Phases 2 and 3 also need:
 - `models/gemma-3-4b-it/` (`google/gemma-3-4b-it`, Gemma license)
 - `models/gemma-4/` (`google/gemma-4-E4B-it`)
 - `data/pg1342.txt` and `data/pg1228.txt` from `https://www.gutenberg.org/cache/epub/<id>/pg<id>.txt` (sha256 in `protocols/idea2_phase2.md`)
