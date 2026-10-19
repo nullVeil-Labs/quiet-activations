@@ -1,0 +1,11 @@
+{
+  "ideas": [
+    "1",
+    "2",
+    "3",
+    "4"
+  ],
+  "torch": "2.13.0+cu130",
+  "python": "3.13.15",
+  "device": "NVIDIA GeForce RTX 4090"
+}

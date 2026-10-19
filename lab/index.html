@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Night Shift Lab</title>
+<style>
+:root {
+  --bg: #f6f4fb; --panel: #ffffff; --ink: #1d1a2b; --muted: #6a6580; --line: #e2dded;
+  --accent: #d6337f; --accent2: #1f8a9e; --pass: #1d7f4e; --fail: #b3412e; --na: #8a8597;
+  --g0: #d6337f; --g1: #e0802b; --g2: #2f7ed8; --g3: #1f9e8a; --g4: #8a56d6; --g5: #6f8a1f;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d0b17; --panel: #16132a; --ink: #ece8fa; --muted: #9a94b5; --line: #2a2546;
+    --accent: #ff4fa3; --accent2: #3fd0e0; --pass: #4fd18a; --fail: #ff7a5c; --na: #8a8597;
+    --g0: #ff4fa3; --g1: #ffa64f; --g2: #5fa8ff; --g3: #3fd0b8; --g4: #b48aff; --g5: #b5d64f;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d0b17; --panel: #16132a; --ink: #ece8fa; --muted: #9a94b5; --line: #2a2546;
+  --accent: #ff4fa3; --accent2: #3fd0e0; --pass: #4fd18a; --fail: #ff7a5c; --na: #8a8597;
+  --g0: #ff4fa3; --g1: #ffa64f; --g2: #5fa8ff; --g3: #3fd0b8; --g4: #b48aff; --g5: #b5d64f;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width: 1080px; margin: 0 auto; padding: 24px 16px 64px; }
+header h1 { margin: 0; font-size: 28px; letter-spacing: -0.02em; }
+header p { margin: 4px 0 0; color: var(--muted); }
+.streetlights { display: flex; gap: 10px; margin: 14px 0 6px; }
+.streetlights span { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); opacity: .35; }
+.streetlights span:nth-child(3) { background: var(--accent); opacity: 1; box-shadow: 0 0 12px var(--accent); }
+.note { border-left: 3px solid var(--accent2); padding: 8px 12px; background: var(--panel); border-radius: 6px; color: var(--muted); margin: 16px 0; }
+section { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 20px; margin-top: 20px; }
+section h2 { margin: 0 0 4px; font-size: 20px; }
+section .q { color: var(--muted); margin: 0 0 14px; }
+.row { display: flex; flex-wrap: wrap; gap: 20px; }
+.row > * { flex: 1 1 300px; min-width: 0; }
+canvas, svg { width: 100%; display: block; background: var(--bg); border-radius: 8px; }
+.controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 10px 0; font-size: 14px; }
+button { font: inherit; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); cursor: pointer; }
+button:hover { border-color: var(--accent); }
+input[type=range] { flex: 1 1 160px; accent-color: var(--accent); }
+select { font: inherit; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 2px 6px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.chip { font-size: 13px; padding: 3px 10px; border-radius: 999px; border: 1px solid currentColor; }
+.chip.pass { color: var(--pass); } .chip.fail { color: var(--fail); } .chip.na { color: var(--na); }
+.legend { display: flex; flex-wrap: wrap; gap: 10px; font-size: 13px; color: var(--muted); }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+td, th { padding: 4px 8px; border-bottom: 1px solid var(--line); text-align: left; }
+.toy { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--accent2); }
+.mono { font-family: ui-monospace, Consolas, monospace; font-size: 13px; }
+footer { color: var(--muted); font-size: 13px; margin-top: 32px; }
+#duck { cursor: pointer; user-select: none; }
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div class="streetlights" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+  <h1>Night Shift Lab</h1>
+  <p>Four interpretability hypotheses, each tested on Qwen3-1.7B or a toy. Run: <span class="mono" id="runid">no data</span></p>
+</header>
+<div class="note">Green or red chips show whether each <b>pre-registered</b> prediction held (see <span class="mono">protocols/</span>). The interactive toys show what a mechanism <i>could</i> do. Only the real-model numbers say what this model <i>does</i>.</div>
+<div class="note" id="nodata" hidden>No <span class="mono">data.js</span> found. Run <span class="mono">python run.py all</span> first. The toys still work.</div>
+
+<section id="s1">
+  <h2>1 · Reasoning as trajectories</h2>
+  <p class="q">Does a token's state curve through the layers, and do prompts with the same answer flow together?</p>
+  <div class="controls">
+    <button id="play1">Play</button>
+    <label>layer <b id="lab1">28</b></label>
+    <input type="range" id="layer1" min="1" max="28" value="28">
+    <label><input type="checkbox" id="snap1"> snapshot only</label>
+  </div>
+  <canvas id="c1" height="420"></canvas>
+  <div class="legend" id="leg1"></div>
+  <div class="row" style="margin-top:14px">
+    <div><b>Turning</b> <span class="q">median cos(v<sub>l</sub>, v<sub>l+1</sub>). 1 means straight</span><svg id="turn1" height="160"></svg></div>
+    <div><b>Convergence</b> <span class="q">R = within-group / between-group distance</span><svg id="R1" height="160"></svg></div>
+  </div>
+  <div class="chips" id="chips1"></div>
+</section>
+
+<section id="s2">
+  <h2>2 · Sub-threshold "dark matter"</h2>
+  <p class="q">If we delete every quiet activation, does something structural break?</p>
+  <div class="toy">Toy: a chord of 5 loud and 50 quiet partials</div>
+  <div class="controls">
+    <label>threshold τ = <b id="tauv">0.00</b></label>
+    <input type="range" id="tau" min="0" max="0.3" step="0.01" value="0">
+    <label><input type="checkbox" id="align" checked> quiet partials phase-aligned</label>
+  </div>
+  <canvas id="c2" height="200"></canvas>
+  <p class="q" id="toy2txt"></p>
+  <div class="row">
+    <div><b>Qwen3: ΔCE when zeroing MLP activations</b><svg id="dce2" height="200"></svg></div>
+    <div><b>Coherence of the quiet sum per layer</b><svg id="coh2" height="200"></svg></div>
+  </div>
+  <div class="chips" id="chips2"></div>
+</section>
+
+<section id="s3">
+  <h2>3 · KV-cache as temporary weights</h2>
+  <p class="q">Fixed weights, different context → a different effective map. With linear attention this is exact: W<sub>fast</sub> = Σ v k<sup>T</sup>.</p>
+  <div class="toy">Toy: edit the context and the fast-weight matrix rewires itself</div>
+  <div class="row">
+    <div>
+      <table id="ctx3"></table>
+      <div class="controls">query <select id="q3"></select> → <b id="ans3"></b></div>
+    </div>
+    <canvas id="c3" height="260"></canvas>
+  </div>
+  <div id="real3" class="q"></div>
+  <div class="chips" id="chips3"></div>
+</section>
+
+<section id="s4">
+  <h2>4 · Empathy as compression (MDL)</h2>
+  <p class="q">Which takes fewer bits to predict responses: a rule table, or a 3-d hidden-state model? We test it in two worlds, one where the latent model should win and one where it shouldn't.</p>
+  <div class="row">
+    <div><b>LATENT world</b> <span class="q">held-out bits/sample</span><svg id="w4a" height="200"></svg></div>
+    <div><b>RULE world (control)</b> <span class="q">held-out bits/sample</span><svg id="w4b" height="200"></svg></div>
+  </div>
+  <div class="legend" id="leg4"></div>
+  <div id="steer4" class="q" style="margin-top:10px"></div>
+  <div class="chips" id="chips4"></div>
+  <div class="note">Compression explains why a predictor might represent other people's states compactly. It does not show the predictor feels anything.</div>
+</section>
+
+<footer>Night Shift R&amp;D · protocols frozen before runs · <span id="duck" title="debugging duck">🦆</span></footer>
+</main>
+<script src="data.js" onerror="document.getElementById('nodata').hidden=false"></script>
+<script>
+const D = window.DATA || null;
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const G = i => css('--g' + (i % 6));
+if (window.RUN_ID) document.getElementById('runid').textContent = window.RUN_ID;
+
+function fitCanvas(c) {
+  const r = window.devicePixelRatio || 1, w = c.clientWidth, h = +c.getAttribute('height');
+  c.width = w * r; c.height = h * r; c.style.height = h + 'px';
+  const ctx = c.getContext('2d'); ctx.setTransform(r, 0, 0, r, 0, 0); return [ctx, w, h];
+}
+function chips(id, preds) {
+  const el = document.getElementById(id); if (!preds) return;
+  el.innerHTML = Object.entries(preds).map(([k, v]) =>
+    `<span class="chip ${v === true ? 'pass' : v === false ? 'fail' : 'na'}">${v === true ? '✓' : v === false ? '✗' : '–'} ${k.replace(/_/g, ' ')}</span>`).join('');
+}
+// Minimal SVG line chart: series = [{ys, xs?, color, dash?, label}]
+function lineChart(id, series, {xlog = false, xlabels = null, hline = null} = {}) {
+  const svg = document.getElementById(id), W = svg.clientWidth || 400, H = +svg.getAttribute('height');
+  const p = {l: 40, r: 10, t: 10, b: 24};
+  const all = series.flatMap(s => s.ys).concat(hline == null ? [] : [hline]).filter(Number.isFinite);
+  let lo = Math.min(...all), hi = Math.max(...all); if (hi - lo < 1e-9) { hi += 1; lo -= 1; }
+  const pad = (hi - lo) * 0.08; lo -= pad; hi += pad;
+  const xsOf = s => s.xs || s.ys.map((_, i) => i);
+  const xall = series.flatMap(xsOf).map(x => xlog ? Math.log10(x) : x);
+  const x0 = Math.min(...xall), x1 = Math.max(...xall);
+  const X = x => p.l + ((xlog ? Math.log10(x) : x) - x0) / (x1 - x0 || 1) * (W - p.l - p.r);
+  const Y = y => H - p.b - (y - lo) / (hi - lo) * (H - p.t - p.b);
+  let out = `<g stroke="${css('--line')}"><line x1="${p.l}" x2="${W - p.r}" y1="${H - p.b}" y2="${H - p.b}"/></g>`;
+  for (const t of [lo + pad, (lo + hi) / 2, hi - pad])
+    out += `<text x="${p.l - 4}" y="${Y(t) + 4}" font-size="10" text-anchor="end" fill="${css('--muted')}">${t.toFixed(2)}</text>`;
+  const xt = series[0] && xsOf(series[0]);
+  if (xt) xt.forEach((x, i) => { if (xt.length <= 6 || i % 5 === 0) out += `<text x="${X(x)}" y="${H - 8}" font-size="10" text-anchor="middle" fill="${css('--muted')}">${xlabels ? xlabels[i] : x}</text>`; });
+  if (hline != null) out += `<line x1="${p.l}" x2="${W - p.r}" y1="${Y(hline)}" y2="${Y(hline)}" stroke="${css('--muted')}" stroke-dasharray="3 3"/>`;
+  for (const s of series) {
+    const xs = xsOf(s);
+    out += `<polyline fill="none" stroke="${s.color}" stroke-width="2" ${s.dash ? 'stroke-dasharray="5 4"' : ''} points="${s.ys.map((y, i) => X(xs[i]) + ',' + Y(y)).join(' ')}"/>`;
+    s.ys.forEach((y, i) => out += `<circle cx="${X(xs[i])}" cy="${Y(y)}" r="2.5" fill="${s.color}"><title>${s.label}: ${(+y).toFixed(4)}</title></circle>`);
+  }
+  svg.innerHTML = out;
+}
+
+/* ---------- Idea 1 ---------- */
+(function () {
+  const r = D && D.trajectories; const c = document.getElementById('c1');
+  const slider = document.getElementById('layer1'), snap = document.getElementById('snap1');
+  if (!r) { document.getElementById('play1').disabled = true; return; }
+  document.getElementById('leg1').innerHTML = r.group_names.map((g, i) => `<span><i style="background:${G(i)}"></i>${g.trim()}</span>`).join('');
+  const P = r.pca_paths; slider.max = P[0].length;
+  const pts = P.flat(); const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+  const bx = [Math.min(...xs), Math.max(...xs)], by = [Math.min(...ys), Math.max(...ys)];
+  function draw() {
+    const [ctx, w, h] = fitCanvas(c); const L = +slider.value; document.getElementById('lab1').textContent = L;
+    const X = x => 20 + (x - bx[0]) / (bx[1] - bx[0]) * (w - 40), Y = y => h - 20 - (y - by[0]) / (by[1] - by[0]) * (h - 40);
+    P.forEach((path, i) => {
+      ctx.strokeStyle = G(r.groups[i]); ctx.fillStyle = G(r.groups[i]);
+      if (!snap.checked) {
+        ctx.globalAlpha = 0.55; ctx.lineWidth = 1.4; ctx.beginPath();
+        path.slice(0, L).forEach((p, j) => j ? ctx.lineTo(X(p[0]), Y(p[1])) : ctx.moveTo(X(p[0]), Y(p[1]))); ctx.stroke();
+      }
+      ctx.globalAlpha = 1; const p = path[L - 1]; ctx.beginPath(); ctx.arc(X(p[0]), Y(p[1]), 4, 0, 7); ctx.fill();
+    });
+    ctx.fillStyle = css('--muted'); ctx.font = '12px system-ui';
+    ctx.fillText(snap.checked ? `one flat snapshot: layer ${L}` : `paths, layers 1–${L}`, 12, 18);
+  }
+  slider.oninput = draw; snap.onchange = draw; addEventListener('resize', draw); draw();
+  let timer = null;
+  document.getElementById('play1').onclick = e => {
+    if (timer) { clearInterval(timer); timer = null; e.target.textContent = 'Play'; return; }
+    e.target.textContent = 'Pause'; slider.value = 1;
+    timer = setInterval(() => { if (+slider.value >= +slider.max) { clearInterval(timer); timer = null; e.target.textContent = 'Play'; } else { slider.value = +slider.value + 1; } draw(); }, 160);
+  };
+  lineChart('turn1', [{ys: r.turning_median_per_layer, xs: r.turning_median_per_layer.map((_, i) => i + 1), color: css('--accent'), label: 'turning'}], {hline: 0});
+  lineChart('R1', [{ys: r.R_per_layer, color: css('--accent2'), label: 'R'}], {hline: 1});
+  chips('chips1', r.predictions);
+})();
+
+/* ---------- Idea 2 toy ---------- */
+(function () {
+  const c = document.getElementById('c2'), tau = document.getElementById('tau'), align = document.getElementById('align');
+  let s = 7; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+  const loud = [1, 2, 3, 5, 8].map(f => ({f, a: 0.8 + 0.4 * rnd(), ph: rnd() * 6.28}));
+  const quiet = Array.from({length: 50}, (_, i) => ({f: 9 + i, a: 0.10 + 0.05 * rnd(), ph: rnd() * 6.28}));
+  function draw() {
+    const [ctx, w, h] = fitCanvas(c), t0 = +tau.value; document.getElementById('tauv').textContent = t0.toFixed(2);
+    const parts = loud.concat(quiet.map(q => ({...q, ph: align.checked ? 0 : q.ph}))).filter(p => p.a >= t0);
+    const N = 600, sig = [];
+    for (let k = 0; k < N; k++) { const t = k / N; sig.push(parts.reduce((acc, p) => acc + p.a * Math.cos(6.283 * p.f * (t - 0.5) + p.ph), 0)); }
+    const m = 9; ctx.strokeStyle = css('--accent'); ctx.lineWidth = 1.6; ctx.beginPath();
+    sig.forEach((v, k) => { const x = k / N * w, y = h / 2 - v / m * (h / 2 - 8); k ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }); ctx.stroke();
+    const kept = parts.length - 5, peak = Math.max(...sig.map(Math.abs));
+    document.getElementById('toy2txt').textContent =
+      `${kept} of 50 quiet partials kept · peak amplitude ${peak.toFixed(2)}. ` +
+      (align.checked ? 'Aligned, the quiet partials add up into a sharp pulse at the centre, and a threshold of 0.2 erases it completely. '
+                     : 'With random phases the quiet partials mostly cancel into hiss, so thresholding changes little. ') +
+      'This is a toy built to behave this way. The Qwen3 charts below show whether the real model works like this.';
+  }
+  tau.oninput = draw; align.onchange = draw; addEventListener('resize', draw); draw();
+  const r = D && D.dark_matter; if (!r) return;
+  const taus = r.ablation.map(a => a.tau);
+  lineChart('dce2', [
+    {ys: r.ablation.map(a => a.thresh.dCE_mean), xs: taus, color: css('--accent'), label: 'threshold'},
+    {ys: r.ablation.map(a => a.random_mass_matched.reduce((s, x) => s + x.dCE_mean, 0) / a.random_mass_matched.length), xs: taus, color: css('--accent2'), dash: 1, label: 'random, same mass'},
+  ], {hline: 0});
+  lineChart('coh2', [
+    {ys: r.coherence.median_C_per_layer, color: css('--accent'), label: 'C'},
+    {ys: r.coherence.median_C_shuf_per_layer, color: css('--accent2'), dash: 1, label: 'C, signs shuffled'},
+  ], {hline: 1});
+  document.getElementById('dce2').insertAdjacentHTML('afterend', `<div class="legend"><span><i style="background:${css('--accent')}"></i>threshold |a|&lt;τ</span><span><i style="background:${css('--accent2')}"></i>random, same L2 mass</span></div>`);
+  document.getElementById('coh2').insertAdjacentHTML('afterend', `<div class="legend"><span><i style="background:${css('--accent')}"></i>real</span><span><i style="background:${css('--accent2')}"></i>signs shuffled</span></div>`);
+  chips('chips2', r.predictions);
+})();
+
+/* ---------- Idea 3 toy ---------- */
+(function () {
+  const keys = ['cat', 'sun', 'tea', 'sea'], vals = ['purrs', 'shines', 'steams', 'waves', 'sleeps', 'sets'];
+  const d = 8; let s = 3; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647 - 0.5;
+  const kv = keys.map((_, i) => Array.from({length: d}, (_, j) => +(i === j)));            // orthonormal keys
+  const vv = vals.map(() => { const v = Array.from({length: d}, rnd); const n = Math.hypot(...v); return v.map(x => x / n); });
+  const ctxv = [0, 1, 2, 3];
+  const tbl = document.getElementById('ctx3'), q = document.getElementById('q3');
+  tbl.innerHTML = '<tr><th>context says…</th><th>→</th></tr>' + keys.map((k, i) =>
+    `<tr><td>${k}</td><td><select data-i="${i}">${vals.map((v, j) => `<option value="${j}" ${j === ctxv[i] ? 'selected' : ''}>${v}</option>`).join('')}</select></td></tr>`).join('');
+  q.innerHTML = keys.map((k, i) => `<option value="${i}">${k}</option>`).join('');
+  function draw() {
+    const W = Array.from({length: d}, (_, a) => Array.from({length: d}, (_, b) => keys.reduce((acc, _, i) => acc + vv[ctxv[i]][a] * kv[i][b], 0)));
+    const qi = +q.value, out = W.map(row => row.reduce((acc, x, b) => acc + x * kv[qi][b], 0));
+    const best = vv.map((v, j) => [v.reduce((a, x, k) => a + x * out[k], 0), j]).sort((a, b) => b[0] - a[0])[0][1];
+    document.getElementById('ans3').textContent = vals[best];
+    const [ctx, w, h] = fitCanvas(document.getElementById('c3')), cell = Math.min((w - 20) / d, (h - 30) / d);
+    ctx.fillStyle = css('--muted'); ctx.font = '12px system-ui'; ctx.fillText('W_fast = Σ v kᵀ  (the weights never change; the context does)', 4, 14);
+    W.forEach((row, a) => row.forEach((x, b) => {
+      ctx.fillStyle = x >= 0 ? css('--accent') : css('--accent2'); ctx.globalAlpha = Math.min(1, Math.abs(x) * 1.6);
+      ctx.fillRect(10 + b * cell, 24 + a * cell, cell - 2, cell - 2);
+    })); ctx.globalAlpha = 1;
+  }
+  tbl.onchange = e => { ctxv[+e.target.dataset.i] = +e.target.value; draw(); }; q.onchange = draw; addEventListener('resize', draw); draw();
+  const r = D && D.kv_fast_weights; if (!r) return;
+  const a = r.part_a_linear, c = r.part_c_qwen3;
+  document.getElementById('real3').innerHTML =
+    `Linear identity error: <b>${a.identity_max_abs_err.toExponential(1)}</b> · recall in own context: <b>${a.recall_A_in_A}</b> / <b>${a.recall_B_in_B}</b> · A's queries in context B: <b>${a.cross_A_queries_in_context_B}</b><br>` +
+    `Softmax Jacobian closed form vs finite differences: rel. error <b>${r.part_b_softmax_toy.rel_err_closed_form_vs_finite_diff.toExponential(1)}</b><br>` +
+    `Qwen3 layer ${c.layer}, per-head Jacobian ∂o/∂q: median rel. distance between different contexts <b>${c.median_rel_dist_different_contexts.toFixed(3)}</b>, identical context <b>${c.max_rel_dist_identical_context}</b>.`;
+  chips('chips3', r.predictions);
+})();
+
+/* ---------- Idea 4 ---------- */
+(function () {
+  const r = D && D.mdl_empathy; if (!r) return;
+  const Ns = [...new Set(r.runs.map(x => x.N))].sort((a, b) => a - b);
+  const mean = (kind, name) => Ns.map(n => { const xs = r.runs.filter(x => x.world === kind && x.N === n); return xs.reduce((s, x) => s + x[name].test_bits_per_sample, 0) / xs.length; });
+  const names = [['rules', '--accent'], ['latent', '--accent2'], ['marginal', '--muted']];
+  for (const [id, kind] of [['w4a', 'latent'], ['w4b', 'rule']]) {
+    const ent = r.runs.filter(x => x.world === kind).reduce((s, x) => s + x.true_entropy_bits_test, 0) / r.runs.filter(x => x.world === kind).length;
+    lineChart(id, names.map(([n, c]) => ({ys: mean(kind, n), xs: Ns, color: css(c), dash: n === 'marginal', label: n})), {xlog: true, hline: ent});
+  }
+  document.getElementById('leg4').innerHTML = names.map(([n, c]) => `<span><i style="background:${css(c)}"></i>${n}</span>`).join('') + '<span>dashed grey line = true entropy (best possible)</span>';
+  const st = r.runs.find(x => x.steering && x.world === 'latent');
+  if (st) document.getElementById('steer4').innerHTML =
+    `Steering every situation towards response 0 (N=${st.N}, seed ${st.seed}): latent model changes <b>${st.steering.latent.params_changed}</b> numbers (mean shift ${st.steering.latent.mean_shift_p0.toFixed(3)} ± ${st.steering.latent.std_shift_p0.toFixed(3)}); ` +
+    `rule table edits <b>${st.steering.rules.rows_edited}</b> rows + fallback (${st.steering.rules.numbers_changed} numbers).`;
+  chips('chips4', r.predictions);
+})();
+
+/* the duck */
+document.getElementById('duck').onclick = e => { e.target.textContent = e.target.textContent === '🦆' ? '🦆💬 have you tried printing it?' : '🦆'; };
+</script>
+</body>
+</html>

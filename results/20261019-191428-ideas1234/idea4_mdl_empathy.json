@@ -1,0 +1,723 @@
+{
+  "runs": [
+    {
+      "world": "latent",
+      "seed": 0,
+      "N": 200,
+      "rules": {
+        "model_bits": 8577.452829506521,
+        "data_bits": 347.39311883324126,
+        "test_bits_per_sample": 2.09953531786492,
+        "total_bits": 8924.845948339762,
+        "stored_rows": 200
+      },
+      "latent": {
+        "model_bits": 317.22003187565105,
+        "data_bits": 98.50960527047191,
+        "test_bits_per_sample": 3.0718010266394873,
+        "total_bits": 415.72963714612297,
+        "n_params": 83
+      },
+      "marginal": {
+        "model_bits": 26.753496664211536,
+        "data_bits": 442.6543139635777,
+        "test_bits_per_sample": 2.0990323132873616,
+        "total_bits": 469.4078106277892
+      },
+      "true_entropy_bits_test": 0.8411157101634533
+    },
+    {
+      "world": "latent",
+      "seed": 0,
+      "N": 1000,
+      "rules": {
+        "model_bits": 50609.84377133572,
+        "data_bits": 1731.2784199062176,
+        "test_bits_per_sample": 2.055671380652723,
+        "total_bits": 52341.122191241935,
+        "stored_rows": 994
+      },
+      "latent": {
+        "model_bits": 413.5800478134766,
+        "data_bits": 780.7191978574909,
+        "test_bits_per_sample": 0.9736115189974714,
+        "total_bits": 1194.2992456709676,
+        "n_params": 83
+      },
+      "marginal": {
+        "model_bits": 34.8802449963173,
+        "data_bits": 2058.7426049413525,
+        "test_bits_per_sample": 2.0563903964016115,
+        "total_bits": 2093.62284993767
+      },
+      "true_entropy_bits_test": 0.8411157101634533
+    },
+    {
+      "world": "latent",
+      "seed": 0,
+      "N": 5000,
+      "rules": {
+        "model_bits": 284928.770782955,
+        "data_bits": 8586.51138396015,
+        "test_bits_per_sample": 2.0683601756328005,
+        "total_bits": 293515.28216691513,
+        "stored_rows": 4828
+      },
+      "latent": {
+        "model_bits": 509.94006375130215,
+        "data_bits": 4151.34944601083,
+        "test_bits_per_sample": 0.8275630879319715,
+        "total_bits": 4661.289509762132,
+        "n_params": 83
+      },
+      "marginal": {
+        "model_bits": 43.00699332842307,
+        "data_bits": 10254.88860727739,
+        "test_bits_per_sample": 2.056808551554285,
+        "total_bits": 10297.895600605812
+      },
+      "true_entropy_bits_test": 0.8411157101634533
+    },
+    {
+      "world": "latent",
+      "seed": 0,
+      "N": 20000,
+      "rules": {
+        "model_bits": 1139396.7188352393,
+        "data_bits": 33267.2739106971,
+        "test_bits_per_sample": 2.0786208253402467,
+        "total_bits": 1172663.9927459364,
+        "stored_rows": 17261
+      },
+      "latent": {
+        "model_bits": 592.9400637513021,
+        "data_bits": 16948.667952555705,
+        "test_bits_per_sample": 0.8178024029744703,
+        "total_bits": 17541.608016307007,
+        "n_params": 83
+      },
+      "marginal": {
+        "model_bits": 50.00699332842307,
+        "data_bits": 41631.17018631095,
+        "test_bits_per_sample": 2.056108167943642,
+        "total_bits": 41681.17717963937
+      },
+      "steering": {
+        "latent": {
+          "params_changed": 3,
+          "mean_shift_p0": 0.10000000000000148,
+          "std_shift_p0": 0.10032950143982707,
+          "frac_situations_shifted_up": 1.0
+        },
+        "rules": {
+          "rows_edited": 17261,
+          "fallback_edited": 1,
+          "numbers_changed": 138096,
+          "mean_shift_p0": 0.10000000000000002,
+          "std_shift_p0": 0.00429530642712832
+        }
+      },
+      "true_entropy_bits_test": 0.8411157101634533
+    },
+    {
+      "world": "latent",
+      "seed": 1,
+      "N": 200,
+      "rules": {
+        "model_bits": 8577.452829506521,
+        "data_bits": 347.39311883324126,
+        "test_bits_per_sample": 2.6345001062375797,
+        "total_bits": 8924.845948339762,
+        "stored_rows": 200
+      },
+      "latent": {
+        "model_bits": 317.22003187565105,
+        "data_bits": 160.52530078014874,
+        "test_bits_per_sample": 5.244581079864313,
+        "total_bits": 477.74533265579976,
+        "n_params": 83
+      },
+      "marginal": {
+        "model_bits": 26.753496664211536,
+        "data_bits": 521.3976256605368,
+        "test_bits_per_sample": 2.6360037960055447,
+        "total_bits": 548.1511223247484
+      },
+      "true_entropy_bits_test": 1.3565732109596096
+    },
+    {
+      "world": "latent",
+      "seed": 1,
+      "N": 1000,
+      "rules": {
+        "model_bits": 50457.203036346764,
+        "data_bits": 1735.8044887178853,
+        "test_bits_per_sample": 2.6305892257382673,
+        "total_bits": 52193.00752506465,
+        "stored_rows": 991
+      },
+      "latent": {
+        "model_bits": 413.5800478134766,
+        "data_bits": 1251.9067185548176,
+        "test_bits_per_sample": 1.4688675545111365,
+        "total_bits": 1665.4867663682942,
+        "n_params": 83
+      },
+      "marginal": {
+        "model_bits": 34.8802449963173,
+        "data_bits": 2578.086309300271,
+        "test_bits_per_sample": 2.634117943341683,
+        "total_bits": 2612.966554296588
+      },
+      "true_entropy_bits_test": 1.3565732109596096
+    },
+    {
+      "world": "latent",
+      "seed": 1,
+      "N": 5000,
+      "rules": {
+        "model_bits": 284279.69385634235,
+        "data_bits": 8645.235391425811,
+        "test_bits_per_sample": 2.616990315680555,
+        "total_bits": 292924.92924776813,
+        "stored_rows": 4817
+      },
+      "latent": {
+        "model_bits": 509.94006375130215,
+        "data_bits": 6492.05424993081,
+        "test_bits_per_sample": 1.3863062805591992,
+        "total_bits": 7001.994313682112,
+        "n_params": 83
+      },
+      "marginal": {
+        "model_bits": 43.00699332842307,
+        "data_bits": 12998.185989517962,
+        "test_bits_per_sample": 2.629708037676716,
+        "total_bits": 13041.192982846385
+      },
+      "true_entropy_bits_test": 1.3565732109596096
+    },
+    {
+      "world": "latent",
+      "seed": 1,
+      "N": 20000,
+      "rules": {
+        "model_bits": 1138340.6069419845,
+        "data_bits": 34059.23867001693,
+        "test_bits_per_sample": 2.5882527236880715,
+        "total_bits": 1172399.8456120014,
+        "stored_rows": 17245
+      },
+      "latent": {
+        "model_bits": 592.9400637513021,
+        "data_bits": 27340.663538545297,
+        "test_bits_per_sample": 1.3762145303562312,
+        "total_bits": 27933.6036022966,
+        "n_params": 83
+      },
+      "marginal": {
+        "model_bits": 50.00699332842307,
+        "data_bits": 52329.72957625352,
+        "test_bits_per_sample": 2.6283995869891426,
+        "total_bits": 52379.736569581946
+      },
+      "steering": {
+        "latent": {
+          "params_changed": 3,
+          "mean_shift_p0": 0.1000000000000018,
+          "std_shift_p0": 0.08785313754164038,
+          "frac_situations_shifted_up": 1.0
+        },
+        "rules": {
+          "rows_edited": 17245,
+          "fallback_edited": 1,
+          "numbers_changed": 137968,
+          "mean_shift_p0": 0.1,
+          "std_shift_p0": 0.004223511361165536
+        }
+      },
+      "true_entropy_bits_test": 1.3565732109596096
+    },
+    {
+      "world": "latent",
+      "seed": 2,
+      "N": 200,
+      "rules": {
+        "model_bits": 8534.699332842309,
+        "data_bits": 346.44525645657643,
+        "test_bits_per_sample": 1.9448060161950063,
+        "total_bits": 8881.144589298885,
+        "stored_rows": 199
+      },
+      "latent": {
+        "model_bits": 317.22003187565105,
+        "data_bits": 78.05939021387633,
+        "test_bits_per_sample": 4.653498943840737,
+        "total_bits": 395.2794220895274,
+        "n_params": 83
+      },
+      "marginal": {
+        "model_bits": 26.753496664211536,
+        "data_bits": 363.16172319833964,
+        "test_bits_per_sample": 1.9427477935742143,
+        "total_bits": 389.91521986255117
+      },
+      "true_entropy_bits_test": 0.8317103235448696
+    },
+    {
+      "world": "latent",
+      "seed": 2,
+      "N": 1000,
+      "rules": {
+        "model_bits": 50253.6820563615,
+        "data_bits": 1727.995388504404,
+        "test_bits_per_sample": 1.9175902803763616,
+        "total_bits": 51981.6774448659,
+        "stored_rows": 987
+      },
+      "latent": {
+        "model_bits": 413.5800478134766,
+        "data_bits": 874.7410061895689,
+        "test_bits_per_sample": 0.9410249741422609,
+        "total_bits": 1288.3210540030454,
+        "n_params": 83
+      },
+      "marginal": {
+        "model_bits": 34.8802449963173,
+        "data_bits": 1897.1213375452012,
+        "test_bits_per_sample": 1.91448849901638,
+        "total_bits": 1932.0015825415185
+      },
+      "true_entropy_bits_test": 0.8317103235448696
+    },
+    {
+      "world": "latent",
+      "seed": 2,
+      "N": 5000,
+      "rules": {
+        "model_bits": 283217.5679764307,
+        "data_bits": 8568.936750497021,
+        "test_bits_per_sample": 1.9257945554810723,
+        "total_bits": 291786.5047269277,
+        "stored_rows": 4799
+      },
+      "latent": {
+        "model_bits": 509.94006375130215,
+        "data_bits": 3954.501731237706,
+        "test_bits_per_sample": 0.8720462758188875,
+        "total_bits": 4464.441794989008,
+        "n_params": 83
+      },
+      "marginal": {
+        "model_bits": 43.00699332842307,
+        "data_bits": 9469.23933156646,
+        "test_bits_per_sample": 1.9109014974798098,
+        "total_bits": 9512.246324894882
+      },
+      "true_entropy_bits_test": 0.8317103235448696
+    },
+    {
+      "world": "latent",
+      "seed": 2,
+      "N": 20000,
+      "rules": {
+        "model_bits": 1135766.334202176,
+        "data_bits": 33154.86873294054,
+        "test_bits_per_sample": 1.9776271419104203,
+        "total_bits": 1168921.2029351166,
+        "stored_rows": 17206
+      },
+      "latent": {
+        "model_bits": 592.9400637513021,
+        "data_bits": 16527.230386623098,
+        "test_bits_per_sample": 0.863052172780599,
+        "total_bits": 17120.1704503744,
+        "n_params": 83
+      },
+      "marginal": {
+        "model_bits": 50.00699332842307,
+        "data_bits": 37476.81941174652,
+        "test_bits_per_sample": 1.9108850668995743,
+        "total_bits": 37526.82640507494
+      },
+      "steering": {
+        "latent": {
+          "params_changed": 3,
+          "mean_shift_p0": 0.10000000000000346,
+          "std_shift_p0": 0.14199041175360938,
+          "frac_situations_shifted_up": 1.0
+        },
+        "rules": {
+          "rows_edited": 17206,
+          "fallback_edited": 1,
+          "numbers_changed": 137656,
+          "mean_shift_p0": 0.09999999999999995,
+          "std_shift_p0": 0.004679600450474039
+        }
+      },
+      "true_entropy_bits_test": 0.8317103235448696
+    },
+    {
+      "world": "rule",
+      "seed": 0,
+      "N": 200,
+      "rules": {
+        "model_bits": 8577.452829506521,
+        "data_bits": 347.39311883324126,
+        "test_bits_per_sample": 3.0256529651545434,
+        "total_bits": 8924.845948339762,
+        "stored_rows": 200
+      },
+      "latent": {
+        "model_bits": 317.22003187565105,
+        "data_bits": 439.64686121779573,
+        "test_bits_per_sample": 8.715751777970963,
+        "total_bits": 756.8668930934468,
+        "n_params": 83
+      },
+      "marginal": {
+        "model_bits": 26.753496664211536,
+        "data_bits": 594.4520465754604,
+        "test_bits_per_sample": 3.0262714400431525,
+        "total_bits": 621.2055432396719
+      },
+      "true_entropy_bits_test": 1.7925049754546585
+    },
+    {
+      "world": "rule",
+      "seed": 0,
+      "N": 1000,
+      "rules": {
+        "model_bits": 50609.84377133572,
+        "data_bits": 1737.1741446595472,
+        "test_bits_per_sample": 3.0009568352978846,
+        "total_bits": 52347.01791599527,
+        "stored_rows": 994
+      },
+      "latent": {
+        "model_bits": 413.5800478134766,
+        "data_bits": 2822.554465107861,
+        "test_bits_per_sample": 3.513628623100109,
+        "total_bits": 3236.1345129213373,
+        "n_params": 83
+      },
+      "marginal": {
+        "model_bits": 34.8802449963173,
+        "data_bits": 2993.708470087738,
+        "test_bits_per_sample": 3.007748970906075,
+        "total_bits": 3028.5887150840554
+      },
+      "true_entropy_bits_test": 1.7925049754546585
+    },
+    {
+      "world": "rule",
+      "seed": 0,
+      "N": 5000,
+      "rules": {
+        "model_bits": 284928.770782955,
+        "data_bits": 8694.073059294773,
+        "test_bits_per_sample": 2.9797684444956083,
+        "total_bits": 293622.8438422498,
+        "stored_rows": 4828
+      },
+      "latent": {
+        "model_bits": 509.94006375130215,
+        "data_bits": 14847.941759698679,
+        "test_bits_per_sample": 3.0352394540616596,
+        "total_bits": 15357.881823449981,
+        "n_params": 83
+      },
+      "marginal": {
+        "model_bits": 43.00699332842307,
+        "data_bits": 14994.235465738919,
+        "test_bits_per_sample": 3.0002345659144622,
+        "total_bits": 15037.242459067342
+      },
+      "true_entropy_bits_test": 1.7925049754546585
+    },
+    {
+      "world": "rule",
+      "seed": 0,
+      "N": 20000,
+      "rules": {
+        "model_bits": 1139396.7188352393,
+        "data_bits": 34630.26216681453,
+        "test_bits_per_sample": 2.916459235443335,
+        "total_bits": 1174026.9810020537,
+        "stored_rows": 17261
+      },
+      "latent": {
+        "model_bits": 592.9400637513021,
+        "data_bits": 59841.3908393359,
+        "test_bits_per_sample": 3.0067114647580806,
+        "total_bits": 60434.330903087204,
+        "n_params": 83
+      },
+      "marginal": {
+        "model_bits": 50.00699332842307,
+        "data_bits": 59995.0392780615,
+        "test_bits_per_sample": 2.9994790813274594,
+        "total_bits": 60045.046271389925
+      },
+      "steering": {
+        "latent": {
+          "params_changed": 3,
+          "mean_shift_p0": -0.12629270127156134,
+          "std_shift_p0": 0.009021122024375923,
+          "frac_situations_shifted_up": 0.0
+        },
+        "rules": {
+          "rows_edited": 17261,
+          "fallback_edited": 1,
+          "numbers_changed": 138096,
+          "mean_shift_p0": 0.09999999999999998,
+          "std_shift_p0": 0.004044249882631029
+        }
+      },
+      "true_entropy_bits_test": 1.7925049754546585
+    },
+    {
+      "world": "rule",
+      "seed": 1,
+      "N": 200,
+      "rules": {
+        "model_bits": 8577.452829506521,
+        "data_bits": 347.39311883324126,
+        "test_bits_per_sample": 3.01963038241299,
+        "total_bits": 8924.845948339762,
+        "stored_rows": 200
+      },
+      "latent": {
+        "model_bits": 317.22003187565105,
+        "data_bits": 431.3564029791489,
+        "test_bits_per_sample": 6.551055831011024,
+        "total_bits": 748.5764348548,
+        "n_params": 83
+      },
+      "marginal": {
+        "model_bits": 26.753496664211536,
+        "data_bits": 595.9774065635038,
+        "test_bits_per_sample": 3.02019994128515,
+        "total_bits": 622.7309032277153
+      },
+      "true_entropy_bits_test": 1.7847592070849325
+    },
+    {
+      "world": "rule",
+      "seed": 1,
+      "N": 1000,
+      "rules": {
+        "model_bits": 50457.203036346764,
+        "data_bits": 1732.8566263412204,
+        "test_bits_per_sample": 2.9987445843085605,
+        "total_bits": 52190.059662687985,
+        "stored_rows": 991
+      },
+      "latent": {
+        "model_bits": 413.5800478134766,
+        "data_bits": 2827.547015975032,
+        "test_bits_per_sample": 3.2249461158907464,
+        "total_bits": 3241.1270637885086,
+        "n_params": 83
+      },
+      "marginal": {
+        "model_bits": 34.8802449963173,
+        "data_bits": 2993.6972284041008,
+        "test_bits_per_sample": 3.004814837816475,
+        "total_bits": 3028.577473400418
+      },
+      "true_entropy_bits_test": 1.7847592070849325
+    },
+    {
+      "world": "rule",
+      "seed": 1,
+      "N": 5000,
+      "rules": {
+        "model_bits": 284279.69385634235,
+        "data_bits": 8670.292221627462,
+        "test_bits_per_sample": 2.97954399473327,
+        "total_bits": 292949.98607796984,
+        "stored_rows": 4817
+      },
+      "latent": {
+        "model_bits": 509.94006375130215,
+        "data_bits": 14835.887746462195,
+        "test_bits_per_sample": 3.0314027640669954,
+        "total_bits": 15345.827810213497,
+        "n_params": 83
+      },
+      "marginal": {
+        "model_bits": 43.00699332842307,
+        "data_bits": 14989.978357862154,
+        "test_bits_per_sample": 3.0019322661428816,
+        "total_bits": 15032.985351190577
+      },
+      "true_entropy_bits_test": 1.7847592070849325
+    },
+    {
+      "world": "rule",
+      "seed": 1,
+      "N": 20000,
+      "rules": {
+        "model_bits": 1138340.6069419845,
+        "data_bits": 34618.21766947447,
+        "test_bits_per_sample": 2.9149111781743775,
+        "total_bits": 1172958.824611459,
+        "stored_rows": 17245
+      },
+      "latent": {
+        "model_bits": 592.9400637513021,
+        "data_bits": 59852.6612639932,
+        "test_bits_per_sample": 3.0065371793751523,
+        "total_bits": 60445.6013277445,
+        "n_params": 83
+      },
+      "marginal": {
+        "model_bits": 50.00699332842307,
+        "data_bits": 59997.51459300108,
+        "test_bits_per_sample": 2.99989877501154,
+        "total_bits": 60047.5215863295
+      },
+      "steering": {
+        "latent": {
+          "params_changed": 3,
+          "mean_shift_p0": -0.12074234037833244,
+          "std_shift_p0": 0.005836257465303955,
+          "frac_situations_shifted_up": 0.0
+        },
+        "rules": {
+          "rows_edited": 17245,
+          "fallback_edited": 1,
+          "numbers_changed": 137968,
+          "mean_shift_p0": 0.1,
+          "std_shift_p0": 0.004137259864100176
+        }
+      },
+      "true_entropy_bits_test": 1.7847592070849325
+    },
+    {
+      "world": "rule",
+      "seed": 2,
+      "N": 200,
+      "rules": {
+        "model_bits": 8534.699332842309,
+        "data_bits": 346.44525645657643,
+        "test_bits_per_sample": 3.023119855262879,
+        "total_bits": 8881.144589298885,
+        "stored_rows": 199
+      },
+      "latent": {
+        "model_bits": 317.22003187565105,
+        "data_bits": 388.56939761195713,
+        "test_bits_per_sample": 10.614247553024395,
+        "total_bits": 705.7894294876082,
+        "n_params": 83
+      },
+      "marginal": {
+        "model_bits": 26.753496664211536,
+        "data_bits": 595.8353238505615,
+        "test_bits_per_sample": 3.023240941377852,
+        "total_bits": 622.588820514773
+      },
+      "true_entropy_bits_test": 1.7848998232787257
+    },
+    {
+      "world": "rule",
+      "seed": 2,
+      "N": 1000,
+      "rules": {
+        "model_bits": 50253.6820563615,
+        "data_bits": 1738.3129068227308,
+        "test_bits_per_sample": 2.998427310406952,
+        "total_bits": 51991.994963184225,
+        "stored_rows": 987
+      },
+      "latent": {
+        "model_bits": 413.5800478134766,
+        "data_bits": 2839.8068237577613,
+        "test_bits_per_sample": 3.406673704658063,
+        "total_bits": 3253.386871571238,
+        "n_params": 83
+      },
+      "marginal": {
+        "model_bits": 34.8802449963173,
+        "data_bits": 2995.812571309811,
+        "test_bits_per_sample": 3.001567404468028,
+        "total_bits": 3030.6928163061284
+      },
+      "true_entropy_bits_test": 1.7848998232787257
+    },
+    {
+      "world": "rule",
+      "seed": 2,
+      "N": 5000,
+      "rules": {
+        "model_bits": 283217.5679764307,
+        "data_bits": 8672.79594715399,
+        "test_bits_per_sample": 2.9779600144894487,
+        "total_bits": 291890.3639235847,
+        "stored_rows": 4799
+      },
+      "latent": {
+        "model_bits": 509.94006375130215,
+        "data_bits": 14839.186810090738,
+        "test_bits_per_sample": 3.0512290099558377,
+        "total_bits": 15349.12687384204,
+        "n_params": 83
+      },
+      "marginal": {
+        "model_bits": 43.00699332842307,
+        "data_bits": 14996.341040709665,
+        "test_bits_per_sample": 3.0002490586686967,
+        "total_bits": 15039.348034038088
+      },
+      "true_entropy_bits_test": 1.7848998232787257
+    },
+    {
+      "world": "rule",
+      "seed": 2,
+      "N": 20000,
+      "rules": {
+        "model_bits": 1135766.334202176,
+        "data_bits": 34634.22007822267,
+        "test_bits_per_sample": 2.9195600858415744,
+        "total_bits": 1170400.5542803986,
+        "stored_rows": 17206
+      },
+      "latent": {
+        "model_bits": 592.9400637513021,
+        "data_bits": 59838.89855124069,
+        "test_bits_per_sample": 3.0046958331298055,
+        "total_bits": 60431.83861499199,
+        "n_params": 83
+      },
+      "marginal": {
+        "model_bits": 50.00699332842307,
+        "data_bits": 59997.29553886425,
+        "test_bits_per_sample": 2.9999434304476607,
+        "total_bits": 60047.302532192676
+      },
+      "steering": {
+        "latent": {
+          "params_changed": 3,
+          "mean_shift_p0": -0.08829174925090465,
+          "std_shift_p0": 0.013576528827097737,
+          "frac_situations_shifted_up": 0.0
+        },
+        "rules": {
+          "rows_edited": 17206,
+          "fallback_edited": 1,
+          "numbers_changed": 137656,
+          "mean_shift_p0": 0.09999999999999998,
+          "std_shift_p0": 0.00410289441064158
+        }
+      },
+      "true_entropy_bits_test": 1.7848998232787257
+    }
+  ],
+  "predictions": {
+    "P1_latent_shortest_in_latent_world": true,
+    "P2_latent_not_better_in_rule_world": true,
+    "P3_steering_edit_counts": true
+  }
+}
