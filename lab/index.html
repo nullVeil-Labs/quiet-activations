@@ -112,7 +112,7 @@ footer { color: var(--muted); font-size: 13px; margin-top: 32px; }
   <div class="legend"><span><i style="background:var(--accent)"></i>quiet, this layer only</span><span><i style="background:var(--accent2)"></i>mid-tier, this layer only</span></div>
   <table id="p3tab" style="margin-top:12px"></table>
   <div class="chips" id="chips3p"></div>
-  <div class="note">The effect is <b>model-specific</b>: diffuse in Qwen3, concentrated in Gemma 3's layer 11, reversed in Gemma 4. The emotion test (does quiet deletion erase feelings more than objects?) came back <b>not supported</b>.</div>
+  <div class="note"><b>⚠️ Correction (2026-10-20):</b> Gemma 3's layer-11 spike is a calibration artifact. At that layer every activation was counted as "quiet", so the whole MLP was deleted. With outliers excluded, Gemma 3's effect vanishes (+0.019 [−0.007, 0.048]), while Qwen3's holds (+0.032 [0.025, 0.040]). The effect stands in <b>Qwen3 only</b>. The emotion test came back <b>not supported</b>.</div>
 </section>
 
 <section id="s3">

@@ -78,6 +78,14 @@ Run `results/20261019-192933-ideas2p`. Protocol `protocols/idea2_phase2.md`, fro
   - The count confound remains.
   - Neurons are not SAE features.
 
+> ### ⚠️ Correction (2026-10-20): the Gemma 3 results below are an artifact
+> In Gemma-3-4B-it **layer 11**, the per-layer τ calibration gave τ₁₁ = 17.4, so *every* activation counted as "quiet", including the top-1% outliers. THRESH at that layer deleted the whole MLP, while the RAND/MID controls exclude outliers. A diagnostic found this in that one layer only (0/28 Qwen3 layers, 0/42 Gemma 4 layers).
+> In an exploratory artifact check (`results/20261020-015709-ideas2a`, 40 fresh chunks), the quiet set was redefined to exclude outliers, as the controls do. The result:
+> - **Gemma 3:** quiet − mid falls from **+0.239 [0.169, 0.317]** to **+0.019 [−0.007, 0.048]**.
+> - **Qwen3:** **+0.034 → +0.032 [0.025, 0.040]**, essentially unchanged.
+>
+> **So the Gemma 3 "confirmation" (Phase 2 descriptive, Phase 3 PA1) and the "layer-11 hotspot" are not evidence for the hypothesis.** The effect stands in **Qwen3 only**. Gemma 4 is reversed, and Gemma 3 shows no clear effect. The sections below are kept as originally written for the record. The calibration rule was a design error in Phases 2–3. A future Phase 4 should use the outlier-excluded quiet definition from the start.
+
 ## Idea 2, Phase 3 — difference metric, layer profile, affect · PA1 ✓ PA2 ✓ PA3 ✗ PC1 ✗ · [real]
 Run `results/20261019-201109-ideas2q`. Protocol `protocols/idea2_phase3.md`, frozen with its code at commit e6732c9. Part A uses 200 fresh chunks, Part B 20, Part C 480 template sentences. Per-chunk raw ΔCE is saved.
 
@@ -112,9 +120,16 @@ Run `results/20261019-201109-ideas2q`. Protocol `protocols/idea2_phase3.md`, fro
 
 **Where Idea 2 stands:** some models (Qwen3 diffusely, Gemma 3 through one layer) depend on their many quiet MLP activations more than an equal energy elsewhere would predict. At least one model (Gemma 4) shows the reverse. We found no evidence that this signal is specifically affective.
 
+## Idea 2 — layer-11 exploratory run and artifact check (2026-10-20) · [exploratory]
+Plan: `protocols/idea2_layer11_exploratory.md`, committed before each run.
+- **Layer-11 run** (`results/20261020-015453-ideas2l`): at layer 11, ‖q‖/‖w‖ = 1.000 and cos(q, w) = 1.000, and all 10,240 neurons were "quiet" on 100% of tokens. The "quiet write" *is* the whole MLP output there. Zeroing it costs 0.449 nats, and replacing it with its corpus mean costs −0.008, i.e. ≈ clean. In that layer, then, the MLP's contribution behaves mostly like a constant offset. That is a statement about layer 11's MLP, not about quiet activations. The token, direction and logit-lens readouts are saved but not interpreted, because they describe the whole MLP rather than a quiet tail.
+- **Artifact check** (`results/20261020-015709-ideas2a`): see the correction notice above.
+
+**Where Idea 2 stands now:** in Qwen3-1.7B-Base, the many quiet MLP activations matter about 2× more than an equal energy of mid-tier activations. That held across four tests: run-1 follow-up, Phase 2, Phase 3, and the outlier-excluded check. It does not generalize to Gemma 3 (no clear effect) or Gemma 4 (reversed). There is no evidence that it is affect-specific.
+
 ## Next steps
-1. Gemma 3 layer 11: what do its quiet activations encode? Look at top tokens, the effect of the write direction, and whether it matches a known feature.
-2. Gemma 4: causal tests of the architecture hypotheses, e.g. ablating per-layer-input contributions, and comparing against Gemma-3n-style models.
-3. Part C at higher power: more sentence frames and natural (non-template) affective text. Then SAE features instead of neurons.
+1. Phase 4 (confirmatory): the outlier-excluded quiet definition, more models (other SwiGLU base models), and a difference criterion. Is Qwen3 a special case, or part of a pattern?
+2. Why Qwen3? Compare the architecture (no post-FFN norm, unlike both Gemmas) and test it causally.
+3. Part C at higher power, then SAE features instead of neurons.
 2. Idea 1: fit one shared vector field against layer-specific fits to the real residual updates, scored on held-out error (open per RELATED_WORK.md).
 3. Idea 4 on a real model: measure the participation ratio of emotion representations across model sizes or checkpoints.
