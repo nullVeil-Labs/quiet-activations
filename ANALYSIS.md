@@ -264,9 +264,32 @@ Run `results/20261020-042858-ideas2k`. Plan `protocols/idea2_volume_knob_explora
 - **E3 ✓.** SmolLM2-Instruct shows no quiet-specific move toward its base.
 - **An unconfirmed oddity:** in Qwen3 instruct, quiet ×0.5 slightly *lowers* CE (−0.011) and KL to base (0.649 vs 0.656). It is the only setting anywhere that beats clean. 58 chunks, no CI, and no fresh text left to replicate it on, so it is not claimed.
 
+## Idea 2 — does the knob change capability? GSM8K · G1 ✗ G2 ✗ G3 ✗ · [real]
+- **Qualitative look first** (`results/20261020-044848-ideas2d`, plan addendum A): six prompts, quiet ×0…×3, Qwen3-1.7B instruct. The outputs stayed coherent even at ×3, with small style and instruction-following shifts at high k. On the sheep riddle, the clean model answered 8 (wrong), while ×0 and ×1.5 answered 9 (right). One anecdote, which prompted the test below.
+- **GSM8K run:** `results/20261020-045327-ideas2g`. Protocol `protocols/idea2_gsm8k_knob.md`, frozen and pushed at commit 3c650b5. 300 problems, greedy, non-thinking.
+
+| | acc | Δ vs clean [95% CI] | flips right→wrong / wrong→right |
+|---|---|---|---|
+| clean | **0.773** | | |
+| quiet ×0 | 0.747 | −0.027 [−0.073, +0.020] | 29 / 21 |
+| quiet ×0.5 | 0.737 | −0.037 [−0.080, +0.007] | 28 / 17 |
+| quiet ×1.5 | 0.747 | −0.027 [−0.070, +0.013] | 24 / 16 |
+| quiet ×2 | 0.723 | −0.050 [−0.093, −0.007] | 31 / 16 |
+| mid ×0 | 0.697 | −0.077 [−0.123, −0.030] | 38 / 15 |
+| mid ×0.5 | 0.743 | −0.030 [−0.073, +0.013] | 27 / 18 |
+| mid ×1.5 | 0.747 | −0.027 [−0.067, +0.013] | 23 / 15 |
+| mid ×2 | 0.703 | −0.070 [−0.117, −0.023] | 36 / 15 |
+
+- **G1 ✗.** No knob setting improves accuracy. The quiet tail is not a hidden capability dial in this model.
+- **G2 ✗.** Quiet ×2 hurts (−5.0 pts, CI excludes 0), but quiet ×0's drop is not significant.
+- **G3 ✗.** In this instruct model, the **mid-tier** set moves accuracy *more* than the quiet tail at k = 0 (−7.7 vs −2.7) and k = 2 (−7.0 vs −5.0). That agrees with Phase 4's finding (from a different measure, raw-text CE) that Qwen3-1.7B instruct relies on mid-tier rather than quiet activations.
+- **Flips:** every setting turns 15–21 wrong answers right, and more right answers wrong. By the rule fixed in advance, this is **noise on borderline decisions, not capability**. The sheep riddle was one such flip.
+- **Caveat:** the conditions also change how often the model uses the `####` format (66–153 of 300 answers lack it). Extraction then falls back to the last number. It is applied identically to every condition, but it adds measurement noise.
+
 ## Next steps
 1. The clean Gemma within-pair test: `gemma-3-1b-it` vs `gemma-3-1b-pt` (same size, same gate). Does Gemma's post-training remove the effect?
-2. A new held-out corpus (the Gutenberg chunks are used up), then a confirmatory test of the quiet ×0.5 oddity in Qwen3 instruct.
+2. The knob on a **base** model's capability, where the quiet tail *is* relied on (needs a few-shot benchmark format for base models).
+3. A new held-out corpus (the Gutenberg chunks are used up), then a confirmatory test of the quiet ×0.5 CE oddity in Qwen3 instruct.
 2. Test the recipe hypothesis: (a) the relative weight change, instruct vs base, per pair (observational); (b) more pairs with documented recipes, distillation-trained vs SFT/DPO-trained.
 3. A dose-response check (scaling the quiet tail by 0–3×, with a mid-tier control) in base and instruct models.
 4. *What* the quiet tail does where it matters, e.g. its effect on the calibration and entropy of next-token predictions. Then SAE features instead of neurons.
