@@ -169,9 +169,32 @@ Run `results/20261020-023743-ideas2r`. Protocol `protocols/idea2_phase4.md`, fro
 - The two instruction-tuned Gemmas also show no positive effect, which is consistent with a training explanation. Without a Gemma *base* model, architecture is not ruled out for them.
 - No evidence the signal is affect-specific. Neurons, not SAE features.
 
+## Idea 2, Phase 5 — second family (SmolLM2-1.7B) · P5.1 ✓ · verdict "not training" · [real]
+Run `results/20261020-035927-ideas2s`. Protocol `protocols/idea2_phase5.md`, frozen with its code at commit 575e7d8 and pushed before the run. The method is identical to Phase 4 Part A, on 200 fresh chunks. No layers were flagged by the guard (max 81% quiet).
+
+| | SmolLM2-1.7B (base) | SmolLM2-1.7B-Instruct |
+|---|---|---|
+| clean CE | 2.242 | 2.513 |
+| ΔCE quiet / mid | 0.141 / 0.120 | 0.114 / 0.093 |
+| **D = quiet − mid** | **+0.022** [0.015, 0.029] | **+0.020** [0.014, 0.027] |
+| D / clean CE | 0.97% | 0.81% |
+| chunks with D > 0 | 73% | 69% |
+
+- **P5.1 ✓.** The base-model effect replicates in a second, independent family (Llama architecture, different data and organisation). It is weaker than in Qwen3: quiet/mid ≈ 1.2× here vs ≈ 2.6× in Qwen3-Base.
+- **The training verdict is "not training".** Paired ΔD = +0.001 [−0.006, 0.009]: post-training left the effect intact.
+- **Robustness checks** (post-run): consistent across books (base 0.024 / 0.020; instruct 0.021 / 0.020), and energy-matched (mid/quiet energy = 0.99 in both).
+
+**Where Idea 2 stands now:**
+- Quiet MLP activations matter more than an equal energy of mid-tier ones in **both base models tested** (Qwen3-1.7B-Base, SmolLM2-1.7B) and in **SmolLM2-1.7B-Instruct**.
+- They do not in **Qwen3-1.7B (instruct)**, **Gemma-3-4B-it** or **Gemma-4-E4B-it**.
+- So post-training **can** remove the effect (Qwen3) but **does not always** (SmolLM2). Phase 4's "training removes it" is specific to Qwen3's post-training, not a general law.
+- A hypothesis, not tested: the difference lies in the post-training recipe. Qwen3's pipeline is multi-stage and includes reinforcement learning and "thinking" training. SmolLM2-Instruct's is believed to be lighter (SFT + preference optimisation; not verified here).
+- The Gemma nulls can't be attributed to training or architecture without a Gemma base model.
+
 ## Next steps
-1. The mirror test: a Gemma **base** model (gated; needs a licence acceptance). If it shows the effect, the training explanation generalizes across families.
-2. More base/instruct pairs (e.g. other open families, larger Qwen3 sizes) to see whether "post-training shrinks the quiet tail's role" is a pattern.
-3. *What* the quiet tail does in base models that post-training removes: e.g. its effect on the calibration and entropy of next-token predictions. Then SAE features instead of neurons.
+1. A Gemma **base** model (gated; needs a licence acceptance), to separate family from training for Gemma.
+2. More base/instruct pairs whose post-training recipes are documented, to test the recipe hypothesis: is RL-heavy post-training what removes reliance on the quiet tail?
+3. A dose-response check (scaling the quiet tail by 0–3×, with a mid-tier control) in base and instruct models.
+4. *What* the quiet tail does where it matters, e.g. its effect on the calibration and entropy of next-token predictions. Then SAE features instead of neurons.
 2. Idea 1: fit one shared vector field against layer-specific fits to the real residual updates, scored on held-out error (open per RELATED_WORK.md).
 3. Idea 4 on a real model: measure the participation ratio of emotion representations across model sizes or checkpoints.
