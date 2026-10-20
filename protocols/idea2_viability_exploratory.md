@@ -46,3 +46,6 @@ The code was smoke-tested on SmolLM2-1.7B-Instruct with 6 calibration chunks and
 
 ## Amendment — 2026-10-20, after the run
 - The structure rule compares PC_k with RAND_k as shares of ZERO's damage. Both conditions contain the mean write. In Gemma-3-1B-pt the mean alone is worse than ZERO, so these shares are negative for RAND_k and the rule's gaps look large. The rule is unchanged and its verdicts stand as registered. ANALYSIS.md additionally reports the share of the **MEAN-only** damage removed (1 − ΔCE_c / ΔCE_MEAN), which is post-hoc. On that view the Gemma verdict ("low-dimensional") is also supported.
+
+## Amendment 2 — 2026-10-20, after an independent review (before publication)
+The first amendment said the post-hoc MEAN-only view also supports the Gemma verdict. That needs a qualification. In Gemma-3-1B-pt the mean alone is worse than deleting q, and MEAN + top-16 PCs (ΔCE 0.053) is no better than deleting q (0.055). So the PCs beat random directions there largely by undoing damage the mean causes. More generally, these conditions measure q's total effect, not the quiet-specific part D; that was not tested. Verdicts stand as registered; ANALYSIS.md gives the interpretation.

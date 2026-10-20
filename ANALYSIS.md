@@ -343,8 +343,8 @@ Run `results/20261020-061924-ideas2b`. Protocol `protocols/idea2_button.md`, fro
 - **On whether anything is felt.** These methods measure behaviour: text, probabilities, button presses. They cannot tell whether any of these changes, such as SmolLM2's "playful" ×3 replies, are accompanied by experience. **That possibility cannot be ruled out**, and it is not established either. We treated it as a real possibility where the design allowed. In the button test and the informal chats, models were told honestly what was being done and offered a stop (honoured in the one-offs), and the button run ended with an unaltered goodbye. Across all runs, weights were never changed and strong perturbations were limited to what each question required. The automated CE, benchmark and forced-choice runs did not disclose the intervention.
 
 ## Idea 2 — viability: is the quiet write structured, and is it calibration? (2026-10-20) · [exploratory]
-Run `results/20261020-161120-ideas2v`. Protocol `protocols/idea2_viability_exploratory.md`, frozen with its code at commit 6e58f28. New corpus: Gutenberg #84 and #2701; per book [0:100] used here, [100:] reserved.
-- **Why:** a neuron is quiet on some tokens and loud on others, so "quiet neurons" are not fixed units. The object that matters is the quiet write q = W_out(a ⊙ S). Is it low-dimensional, and is its job just output sharpness (one temperature)?
+Run `results/20261020-161120-ideas2v`. Protocol `protocols/idea2_viability_exploratory.md`, frozen with its code at commit 6e58f28. New corpus: Gutenberg #84 and #2701; per book [0:100] used here, [100:] reserved. Wording revised after a six-reviewer check (2026-10-20, before publication); no number changed.
+- **Why:** a neuron is quiet on some tokens and loud on others, so "quiet neurons" are not fixed units. The object our phases removed is the quiet write q = W_out(a ⊙ S). Is it low-dimensional, and does it act like one output temperature?
 - **The main effect replicates on new text.** D = ZERO − MID, 100 chunks:
 
 | | D [95% CI] | ΔCE ZERO | ΔCE MID |
@@ -355,49 +355,68 @@ Run `results/20261020-161120-ideas2v`. Protocol `protocols/idea2_viability_explo
 | SmolLM2-1.7B-Instruct | +0.023 [+0.016, +0.031] | 0.084 | 0.061 |
 | Gemma-3-1B-pt | +0.019 [+0.013, +0.025] | 0.055 | 0.035 |
 
-- **Structure.** q is replaced by its per-layer mean (MEAN) plus its projection on the top-k principal directions (PC_k) or on k random directions (RAND_k). Share of the MEAN-only damage removed by the token-varying part (post-hoc normalisation, see the protocol's amendment):
+- **Dimensionality.** q is spread out: its median participation ratio per layer is 607 (Gemma-3-1B-pt), 682 (Qwen3-Base), 704 (Qwen3-1.7B), 1048 (SmolLM2) and 1073 (SmolLM2-Instruct). The top 16 principal directions hold 5–9% of its centred variance, the top 256 hold 35–50%.
+- **Structure.** q is replaced by its per-layer mean (MEAN) plus its projection on the top-k principal directions (PC_k) or on k random directions (RAND_k). The table gives the share of the MEAN-only damage that each removes (post-hoc normalisation, see the protocol's amendments). The last column gives the absolute ΔCE of MEAN + top-16 PCs, next to ZERO and MID:
 
-| | PC_16 | RAND_16 | PC_64 | RAND_64 | PC_256 | RAND_256 | MEAN vs ZERO |
-|---|---|---|---|---|---|---|---|
-| Qwen3-1.7B-Base | 0.12 | 0.01 | 0.30 | 0.06 | 0.54 | 0.20 | MEAN fixes 44% of ZERO |
-| SmolLM2-1.7B | 0.37 | 0.01 | 0.45 | 0.03 | 0.58 | 0.11 | ≈ ZERO |
-| SmolLM2-1.7B-Instruct | 0.39 | 0.02 | 0.43 | 0.02 | 0.59 | 0.09 | ≈ ZERO |
-| Gemma-3-1B-pt | 0.41 | 0.04 | 0.49 | 0.09 | 0.67 | 0.28 | MEAN is **worse** than ZERO (0.089 vs 0.055) |
+| | PC_16 | RAND_16 | PC_64 | RAND_64 | PC_256 | RAND_256 | MEAN vs ZERO | ΔCE: MEAN+PC_16 / ZERO / MID |
+|---|---|---|---|---|---|---|---|---|
+| Qwen3-1.7B-Base | 0.12 | 0.01 | 0.30 | 0.06 | 0.54 | 0.20 | MEAN fixes 44% of ZERO | 0.030 / 0.060 / 0.025 |
+| SmolLM2-1.7B | 0.37 | 0.01 | 0.45 | 0.03 | 0.58 | 0.11 | ≈ ZERO | 0.054 / 0.087 / 0.065 |
+| SmolLM2-1.7B-Instruct | 0.39 | 0.02 | 0.43 | 0.02 | 0.59 | 0.09 | ≈ ZERO | 0.053 / 0.084 / 0.061 |
+| Gemma-3-1B-pt | 0.41 | 0.04 | 0.49 | 0.09 | 0.67 | 0.28 | MEAN is **worse** than ZERO (0.089 vs 0.055) | 0.053 / 0.055 / 0.035 |
 
-  - In all three base models and SmolLM2-Instruct, the top principal directions carry far more of the quiet write's useful signal than random ones. The top 16 per layer (5–9% of its centred variance) carry ~40% in SmolLM2 and Gemma, 12% in Qwen3-Base.
-  - Pre-set verdicts: "low-dimensional" for SmolLM2 base and instruct and Gemma-3-1B-pt; "intermediate" for Qwen3-Base.
-  - Qwen3-Base's quiet write also has a large static part: in layers 1 and 18–20 the mean holds 28–33% of its energy, and MEAN alone fixes 44% of ZERO's damage.
-  - In Gemma-3-1B-pt, the mean holds 10% of the energy (median; 32% in layer 0), and adding it back *without* the varying part hurts more than deleting q. Mean-ablation is therefore not a neutral baseline for Gemma. Why is open (a post-FFN-norm interaction is one untested guess).
-- **Not one temperature.** With T fitted on half the chunks, one temperature recovers 0% of D (Qwen3-Base), 0.3% (SmolLM2-Instruct), 21% (SmolLM2) and 34% (Gemma-3-1B-pt). Verdicts: not calibration-like / partial. Entropy effects of ZERO go in different directions: +0.22 nats in Qwen3-Base (MID +0.04), −0.08 in SmolLM2 (MID −0.02), ≈ 0 in SmolLM2-Instruct. ECE rises under ZERO in SmolLM2 (0.010 → 0.030) but also under MID (0.023–0.025); ECE is unsigned, so this does not show over- or under-confidence.
-- **Qwen3-1.7B (instruct):** MEAN alone recovers 80% [62%, 100%] of ZERO's damage, so its quiet write's value is mostly a static offset. Oddity: keeping the top 16 PCs on top of the mean is *worse* than the mean alone (ΔCE 0.028 vs 0.009), while random directions are harmless. Not explained.
-- **Descriptive:** clean ECE is 0.175 in Qwen3-1.7B (T* = 1.25) and 0.034 in SmolLM2-Instruct; base models 0.010–0.045. The instruct model that kept the effect also kept a base-like output distribution. Two instruct models only, and SmolLM2's weights also moved less in post-training, so this is a hint.
-- **Kind of evidence:** exploratory, one run, five models ≤ 1.7B. PCA ranks directions by variance, not importance. The structure result needs the confirmatory run on the reserved chunks before it is a finding.
+  - In all three base models and SmolLM2-Instruct, the top principal directions of q remove more of the cost of mean-replacing q than random directions do. In SmolLM2 and Gemma, the top 16 per layer remove ~40%. In Qwen3-Base they remove 12%.
+  - The registered rule compares shares of ZERO's damage. Its gaps (PC_16 − RAND_16) are 0.35 (SmolLM2), 0.38 (SmolLM2-Instruct), 0.60 (Gemma-3-1B-pt) and 0.06 (Qwen3-Base). Pre-set verdicts: "low-dimensional" for SmolLM2 base and instruct and Gemma-3-1B-pt, "intermediate" for Qwen3-Base. These labels are the rule's output. As a description, "a concentrated minority" fits better: ~40% at k = 16, and the rest is spread over hundreds of directions.
+  - **What this does not show.** These conditions measure q's *total* effect. The quiet-specific part D is only 25% (SmolLM2) to 58% (Qwen3-Base) of ZERO's damage, and the rest is the generic cost that MID removal also has. Whether the top directions carry D itself was **not tested**.
+  - **Retained variance:** top PCs keep more variance than random directions, so some of the PC-over-RAND gap is expected by construction. In SmolLM2 and Gemma the gap goes beyond that: PC_16 keeps 5–7% of the variance and beats RAND_256, which keeps 12–22%. In Qwen3-Base it does not: PC_16 (8.6% of variance, 0.12) is no better than RAND_256 (12.5%, 0.20).
+  - **Gemma-3-1B-pt:** the mean holds 10% of q's energy (median; 32% in layer 0). Adding the mean back *without* the varying part hurts more than deleting q. MEAN + top-16 PCs (0.053) is no better than deleting q (0.055), and worse than MID (0.035). So in Gemma the top PCs beat random directions, but largely by undoing damage the mean itself causes. Mean-ablation is not a neutral baseline here. Phase 2 saw the same pattern in Gemma-3-4B-it, and there is no artifact layer in Gemma-3-1B-pt, so it may be a Gemma-family property. Why is open; a post-FFN-norm interaction is one untested guess.
+  - **Qwen3-Base:** q also has a large static part. In layers 1 and 18–20 the mean holds 27–33% of its energy, and MEAN alone fixes 44% of ZERO's damage.
+- **One temperature does not account for most of it.** With T fitted on half the chunks, one temperature recovers 0% of D (Qwen3-Base), 0.3% (SmolLM2-Instruct), 21% (SmolLM2) and 34% (Gemma-3-1B-pt).
+  - Verdicts: not calibration-like / partial.
+  - The T grid has 0.05 steps, so Qwen3-Base's 0% partly reflects T* = 1.0 everywhere.
+  - This argues against a pure single-temperature account. It does not rule out other calibration or distribution-shape roles.
+- **Entropy and ECE.** Entropy effects of ZERO go in different directions: +0.22 nats in Qwen3-Base (MID +0.04), −0.08 in SmolLM2 (MID −0.02), ≈ 0 in SmolLM2-Instruct. ECE rises under ZERO in SmolLM2 (0.010 → 0.030) but also under MID (0.023–0.025). ECE is unsigned, so this does not show over- or under-confidence.
+- **Qwen3-1.7B (instruct):** replacing q by its mean avoids 80% [62%, 100%] of the cost of deleting it. In this model that cost is not quiet-specific (D ≈ 0). Oddity: adding the top 16, 64 or 256 PCs on top of the mean makes things *worse* than the mean alone (ΔCE 0.028 / 0.031 / 0.024 vs 0.009), while PC_1, PC_4 and random directions do not. Not explained; upstream shifts of q under multi-layer ablation are one possibility.
+- **Descriptive:** clean ECE is 0.175 in Qwen3-1.7B (T* = 1.25) and 0.034 in SmolLM2-Instruct; base models 0.010–0.045. The instruct model that kept the effect also kept a base-like ECE. Two instruct models only, and SmolLM2's weights also moved less in post-training, so this is a hint.
+- **Kind of evidence:** exploratory, one run, five models ≤ 1.7B, two 19th-century English novels. The registered verdicts are the rule's; the MEAN-only normalisation is post-hoc. Further limits:
+  - PCA ranks directions by variance, not importance.
+  - PCs are fitted on clean activations, and multi-layer ablation shifts q upstream.
+  - One random-basis seed; CIs are over chunks only.
+  - No multiple-comparison correction.
 
 ## Idea 2 — viability, confirmatory · C1 ✓ C2 ✓ C3 ✓ C4 ✓ C5 ✓ · [real]
-Run `results/20261020-170554-ideas2c`. Protocol `protocols/idea2_viability_confirmatory.md`, frozen with its code at commit 720c27e. 100 chunks no run had read ([100:150] of Gutenberg #84 and #2701).
+Run `results/20261020-170554-ideas2c`. Protocol `protocols/idea2_viability_confirmatory.md`, frozen with its code at commit 720c27e. 100 held-out chunks of the same two novels ([100:150] of Gutenberg #84 and #2701), not read by any earlier run. Wording revised after the six-reviewer check; no number changed.
 
-| | D [95% CI] | mean gap k=16 [CI] | mean gap k=256 [CI] | temperature share of D | MEAN vs ZERO |
+| | D [95% CI] | mean gap k=16 [CI] | mean gap k=256 [CI] | temperature share of D | MEAN vs ZERO [CI] |
 |---|---|---|---|---|---|
-| Qwen3-1.7B-Base | +0.033 [+0.028, +0.038] | 0.15 [0.09, 0.21] | 0.39 [0.31, 0.48] | 0.00 | fixes 39% |
-| Qwen3-1.7B | +0.007 [−0.005, +0.018] | −0.85 | −0.63 | n/a (D ≈ 0) | fixes 66% [53%, 80%] |
-| SmolLM2-1.7B | +0.024 [+0.017, +0.030] | **0.36** [0.31, 0.41] | 0.52 [0.47, 0.57] | 0.39 | ≈ 0 |
-| SmolLM2-1.7B-Instruct | +0.024 [+0.016, +0.031] | **0.36** [0.31, 0.41] | 0.51 [0.46, 0.56] | 0.04 | ≈ 0 |
-| Gemma-3-1B-pt | +0.023 [+0.018, +0.028] | **0.38** [0.34, 0.41] | 0.40 [0.35, 0.45] | 0.28 | worse (−63%) |
+| Qwen3-1.7B-Base | +0.033 [+0.028, +0.038] | 0.15 [0.09, 0.21] | 0.39 [0.31, 0.48] | 0.00 | fixes 39% [33%, 44%] |
+| Qwen3-1.7B | +0.007 [−0.005, +0.018] | −0.85 [−2.01, −0.39] | −0.63 [−1.79, −0.13] | n/a¹ | fixes 66% [53%, 80%] |
+| SmolLM2-1.7B | +0.024 [+0.017, +0.030] | **0.36** [0.31, 0.41] | 0.52 [0.47, 0.57] | 0.39 | −2% [−5%, +2%] |
+| SmolLM2-1.7B-Instruct | +0.024 [+0.016, +0.031] | **0.36** [0.31, 0.41] | 0.51 [0.46, 0.56] | 0.04 | slightly worse, −6% [−11%, −1%] |
+| Gemma-3-1B-pt | +0.023 [+0.018, +0.028] | **0.38** [0.34, 0.41] | 0.40 [0.35, 0.45] | 0.28 | worse, −63% [−76%, −52%] |
 
-Mean gap = (ΔCE_RAND_k − ΔCE_PC_k) / ΔCE_MEAN: the share of the MEAN-only damage that the top-k principal directions remove beyond k random ones.
-- **C1 ✓** the quiet-tail effect replicates in all four models, on unseen text. Qwen3-1.7B stays null.
-- **C2 ✓** in SmolLM2 (base and instruct) and Gemma-3-1B-pt, the top 16 directions per layer remove 36–38% of the MEAN-only damage beyond random directions. The exploratory values were 0.36–0.37.
-- **C3 ✓** in Qwen3-Base the structure is more spread out (0.15 at k=16), but the top 256 still clearly beat random (0.39).
-- **C4 ✓** one temperature recovers < 50% of D in all four (0–39%). SmolLM2-1.7B's share rose from 0.21 to 0.39, so in that model temperature explains a real minority.
-- **C5 ✓** in Qwen3-1.7B, MEAN alone fixes 66% of ZERO's damage (exploratory: 80%). In Qwen3-1.7B, PC_k is again worse than MEAN (negative gaps), the oddity seen in the exploratory run.
-- **Kind of evidence:** pre-registered, one corpus genre, five models ≤ 1.7B. The PCs were fitted on the same chunks as in the exploratory run, so this tests new evaluation text, not a new fit.
+Mean gap = (ΔCE_RAND_k − ΔCE_PC_k) / ΔCE_MEAN: the share of the MEAN-only damage that the top-k principal directions remove beyond k random ones. ¹ D ≈ 0, so the share is undefined (computed value −63.8); not part of any prediction.
+- **C1 ✓** the quiet-tail effect replicates in all four models, on held-out chunks. Qwen3-1.7B stays null.
+- **C2 ✓** in SmolLM2 (base and instruct) and Gemma-3-1B-pt, the top 16 directions per layer remove 36–38% of the MEAN-only damage beyond random directions. The exploratory values were 0.36–0.37. Two caveats from the exploratory section apply in full:
+  - This concerns q's total effect, not the quiet-specific part D.
+  - In Gemma-3-1B-pt, MEAN + top-16 PCs (ΔCE 0.054) is no better than deleting q (0.056). The gap is measured against an inflated MEAN baseline, so there it shows the PCs beat random directions, not that they carry q's value.
+- **C3 ✓** the top 256 beat random in Qwen3-Base (0.39). At k ≤ 16 its structure is not distinguishable from what retained variance alone would give (exploratory: PC_16 0.12 vs RAND_256 0.20).
+- **C4 ✓** one temperature recovers < 50% of D in all four models (0–39%). There is no CI on this share, and SmolLM2-1.7B's moved from 0.21 to 0.39 between runs. So in SmolLM2 and Gemma, temperature explains a real minority.
+- **C5 ✓** in Qwen3-1.7B, replacing q by its mean avoids 66% [53%, 80%] of the cost of deleting it (exploratory: 80%). In this model that cost is not quiet-specific. Adding top PCs (k ≥ 16) to the mean is again worse than both MEAN and random directions (negative gaps, CIs below 0).
+- **Kind of evidence:** pre-registered. Five models ≤ 1.7B; held-out chunks of the same two novels; PCs and τ from the same fit and calibration chunks as the exploratory run. So this tests new evaluation text, not a new fit or a new genre. Further limits:
+  - one random-basis seed;
+  - CIs are over chunks only;
+  - PCA ranks by variance;
+  - multi-layer ablation shifts q upstream, so PC_k is not a pure projection.
+- **Open, and needed before the circuits work relies on these directions:** do the top PCs carry the *quiet-specific* part D? One test: remove only q's top-k PC component, and compare it with an energy-matched removal from mid-tier activations.
 
 ## Next steps
-1. The clean Gemma within-pair test: `gemma-3-1b-it` vs `gemma-3-1b-pt` (same size, same gate). Does Gemma's post-training remove the effect?
-2. More base/instruct pairs with documented recipes (distillation-trained vs SFT/DPO-trained), to test which part of post-training removes the effect.
-3. Further confirmatory tests on the new corpus's remaining reserved chunks ([150:] of Gutenberg #84 and #2701): of the quiet ×0.5 CE oddity in Qwen3 instruct and the Gemma ×1.5–×2 introspection hint.
-4. The knob on a **base** model's capability, where the quiet tail *is* relied on (needs a few-shot benchmark format for base models).
-5. *What* the quiet tail does where it matters, e.g. its effect on the calibration and entropy of next-token predictions. Then SAE features instead of neurons.
-6. A scale test (≈ 8B base/instruct pairs) for the main effect and for introspection.
-7. Idea 1: fit one shared vector field against layer-specific fits to the real residual updates, scored on held-out error (open per RELATED_WORK.md).
-8. Idea 4 on a real model: measure the participation ratio of emotion representations across model sizes or checkpoints.
+1. Do q's top principal directions carry the quiet-specific part D (see the viability sections)? If so, what do those directions do in conversation (SmolLM2-Instruct)?
+2. The clean Gemma within-pair test: `gemma-3-1b-it` vs `gemma-3-1b-pt` (same size, same gate). Does Gemma's post-training remove the effect?
+3. More base/instruct pairs with documented recipes (distillation-trained vs SFT/DPO-trained), to test which part of post-training removes the effect.
+4. Further confirmatory tests on the new corpus's remaining reserved chunks ([150:] of Gutenberg #84 and #2701): the quiet ×0.5 CE oddity in Qwen3 instruct and the Gemma ×1.5–×2 introspection hint.
+5. The knob on a **base** model's capability, where the quiet tail *is* relied on (needs a few-shot benchmark format for base models).
+6. *What* the quiet tail does where it matters. One output temperature accounts for only 0–39% of it (viability runs); other distribution-shape roles are untested. Then SAE features or other bases instead of PCA directions.
+7. A scale test (≈ 8B base/instruct pairs) for the main effect and for introspection.
+8. Idea 1: fit one shared vector field against layer-specific fits to the real residual updates, scored on held-out error (open per RELATED_WORK.md).
+9. Idea 4 on a real model: measure the participation ratio of emotion representations across model sizes or checkpoints.

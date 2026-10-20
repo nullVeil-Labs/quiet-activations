@@ -40,3 +40,7 @@ Each prediction is reported as passed or failed, whatever the outcome.
 
 ## Note before the run
 The added code was smoke-tested on Gemma-3-1B-pt using 4 calibration chunks and 8 fit chunks. No [100:150] chunk was read.
+
+## Amendment — 2026-10-20, after the run (independent review)
+- "Identical ... same code" in Setup means the same code path. Before the freeze, `nightshift/viability.py` was extended with a per-chunk output, an `eval_slice` argument (default unchanged) and `confirm()`; the exploratory computations were not changed (`git diff 6e58f28 720c27e`).
+- The smoke test before the freeze printed the three mean-gap values (k = 16, 64, 256) for Gemma-3-1B-pt. These were computed on fit chunks standing in for evaluation, and the thresholds had already been chosen from the exploratory run.

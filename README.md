@@ -8,16 +8,19 @@ Do the many small ("quiet") MLP activations in LLMs matter more than their size 
 
 Each protocol was frozen (committed) before its run; from Phase 2 on, together with its code. Failures are reported as failures.
 
-**Status (2026-10-20):** run 1 is complete for all four ideas. Idea 2 also has pre-registered Phases 2–6, a capability test (GSM8K), two introspection tests and an [END]-button test, plus several exploratory runs, across 7 models. Every number up to the [END]-button test was independently fact-checked against the raw results. The newest runs (viability, exploratory then pre-registered: on unseen text, the quiet write's useful part sits in a few principal directions per layer, and is not a temperature effect; all 5 predictions held) have not been independently fact-checked yet.
+**Status (2026-10-20):** run 1 is complete for all four ideas. Idea 2 also has pre-registered Phases 2–6, a capability test (GSM8K), two introspection tests and an [END]-button test, plus several exploratory runs, across 7 models. Every number was independently fact-checked against the raw results. The newest runs (viability, exploratory then pre-registered, 5/5 predictions held) found, in these five models ≤ 1.7B on held-out chunks of two novels, that:
+  - the main effect replicates;
+  - the top principal directions of the quiet write remove more of its cost than random directions (~40% of the mean-only damage at 16 per layer in SmolLM2 and Gemma-3-1B). Whether they carry the quiet-specific part is not yet tested;
+  - one softmax temperature recovers under half of the effect (0–39%).
 - Results: [`ANALYSIS.md`](ANALYSIS.md).
 - Prior work: [`RELATED_WORK.md`](RELATED_WORK.md).
-- **Next step:** what the top quiet directions do in conversation (SmolLM2-Instruct); then the same-size Gemma pair (`gemma-3-1b-pt` vs `gemma-3-1b-it`).
+- **Next step:** test whether the top quiet directions carry the quiet-specific part; if so, what they do in conversation (SmolLM2-Instruct). Then the same-size Gemma pair (`gemma-3-1b-pt` vs `gemma-3-1b-it`).
 - Note: in Gemma-3-1B-pt, replacing the quiet write with its mean hurts more than deleting it, so mean-ablation is not a neutral baseline there.
 
 | Idea | Pre-registered predictions | Headline |
 |---|---|---|
 | 1 Trajectories | 3/3 held | States sort by wording mid-network, by answer only in the last third. Consecutive layer writes are near-orthogonal. |
-| 2 Dark matter | run 1: 0/3 · Phases 2–6: mixed · knob, GSM8K, introspection, button: all ✗ (see ANALYSIS.md) | **All 3 base models tested (Qwen3, SmolLM2, Gemma 3) rely on their quiet MLP tail** more than an equal energy of mid-tier activations predicts. **3 of 4 instruct models don't** (the Gemma-3-4B-it null is from an exploratory check); the exception is SFT + DPO-trained SmolLM2-Instruct. A pre-registered test **falsified** the idea that pre-training distillation causes the loss. No evidence the quiet tail is a capability dial, that models can detect its alteration, or that it is affect-specific. ⚠️ Corrected 2026-10-20: an earlier positive Gemma-3-4B-it result (Phases 2–3, including the "layer 11 hotspot") was a calibration artifact. |
+| 2 Dark matter | run 1: 0/3 · Phases 2–6: mixed · knob, GSM8K, introspection, button: all ✗ · viability: 5/5 ✓ (see ANALYSIS.md) | **All 3 base models tested (Qwen3, SmolLM2, Gemma 3) rely on their quiet MLP tail** more than an equal energy of mid-tier activations predicts. **3 of 4 instruct models don't** (the Gemma-3-4B-it null is from an exploratory check); the exception is SFT + DPO-trained SmolLM2-Instruct. A pre-registered test **falsified** the idea that pre-training distillation causes the loss. The effect replicates on a new corpus, and one output temperature explains under half of it. No evidence the quiet tail is a capability dial, that models can detect its alteration, or that it is affect-specific. ⚠️ Corrected 2026-10-20: an earlier positive Gemma-3-4B-it result (Phases 2–3, including the "layer 11 hotspot") was a calibration artifact. |
 | 3 KV as weights | 3/3 held | Exact for linear attention (known result). In Qwen3, context changes each head's local map by about its own size. Its low rank is mostly forced by short contexts, so it is not a finding. |
 | 4 Empathy as MDL | 3/3 held | A latent state model compresses best only when the world has low-dimensional structure. A toy; says nothing about feelings. |
 
@@ -58,7 +61,8 @@ Phase 4 Part B (`2r`) also needs both Gemma models.
 Phases 2 and 3 also need:
 - `models/gemma-3-4b-it/` (`google/gemma-3-4b-it`, Gemma license)
 - `models/gemma-4/` (`google/gemma-4-E4B-it`)
-- `data/pg1342.txt` and `data/pg1228.txt` from `https://www.gutenberg.org/cache/epub/<id>/pg<id>.txt` (sha256 in `protocols/idea2_phase2.md`); `2v` also needs `data/pg84.txt` and `data/pg2701.txt` from the same URL pattern (sha256 in `protocols/idea2_viability_exploratory.md`)
+- `data/pg1342.txt` and `data/pg1228.txt` from `https://www.gutenberg.org/cache/epub/<id>/pg<id>.txt` (sha256 in `protocols/idea2_phase2.md`); `data/pg1342.txt` and `data/pg1228.txt` are not used by `2v`/`2c`.
+`2v` and `2c` need `data/pg84.txt` and `data/pg2701.txt` (same URL pattern; sha256 in `protocols/idea2_viability_exploratory.md`) and five models: `models/qwen3-1.7b-base/`, `models/qwen3-1.7b/`, `models/SmolLM2-1b-base/`, `models/smollm2-1.7b-instruct/` and `models/gemma-3-1b-pt/` (sources as listed for `2r`, `2s`, `2t`).
 Ideas 1–3 need the model weights; Idea 4 and the toy parts don't.
 Download **Qwen3-1.7B-Base** from Hugging Face (`Qwen/Qwen3-1.7B-Base`) into `models/qwen3-1.7b-base/`. The weights are not included in this repo.
 A CUDA GPU is recommended. On one RTX 4090, `all` takes about a minute and each Idea 2 phase 10–30 minutes.
