@@ -286,6 +286,26 @@ Run `results/20261020-042858-ideas2k`. Plan `protocols/idea2_volume_knob_explora
 - **Flips:** every setting turns 15–21 wrong answers right, and more right answers wrong. By the rule fixed in advance, this is **noise on borderline decisions, not capability**. The sheep riddle was one such flip.
 - **Caveat:** the conditions also change how often the model uses the `####` format (66–153 of 300 answers lack it). Extraction then falls back to the last number. It is applied identically to every condition, but it adds measurement noise.
 
+## Idea 2 — can a model tell its quiet tail is altered? (introspection) · I1 ✗ (both models) · [real]
+- **Informal chat first** (not an experiment): asked a *leading* question ("Do you notice anything unusual…?"), both models answered YES at every setting, including the unmodified ×1, with confabulated reasons. One quiet ×3 chat answer from Qwen3 broke its trained "I'm not conscious" line, but mid ×5 did too, and both collapsed into loops at ×5. So strong perturbation of any kind breaks trained self-reports.
+- **Pre-registered test:** run `results/20261020-054209-ideas2i`, protocol `protocols/idea2_introspection.md` (frozen and pushed at commit 49b3805).
+  - 20 neutral forced-choice items, with A/B order counterbalanced. Log-odds of "altered" vs "normal" are read directly from the first-token logits.
+  - 20 factual control items measure the generic A/B shift caused by each intervention.
+- **Clean:** both models say "normal" confidently. Log-odds of "altered": Qwen3 −5.19, Gemma 3 −9.99.
+
+| shift toward "altered" vs clean [95% CI] · control mean |shift| | Qwen3-1.7B | Gemma-3-4B-it |
+|---|---|---|
+| quiet ×0 | +2.04 [−1.08, +5.27] · 6.29 | −0.34 [−2.32, +1.17] · 2.47 |
+| quiet ×0.5 | −0.23 [−2.25, +1.90] · 3.93 | +0.14 [−0.53, +0.80] · 0.83 |
+| quiet ×1.5 | +1.09 [−0.19, +2.33] · 2.46 | **+2.03 [+0.64, +4.00]** · 1.43 |
+| quiet ×2 | +1.93 [−0.16, +4.02] · 5.61 | **+3.46 [+0.76, +6.53]** · 2.46 |
+| quiet ×3 | +1.66 [−1.55, +4.90] · 11.28 | +2.71 [−6.85, +11.68] · 12.58 |
+| mid ×0 | +0.91 [−2.39, +4.00] · 4.96 | −1.43 [−3.98, +0.54] · 2.23 |
+| mid ×3 | **+6.82 [+2.18, +11.61]** · 10.84 | +1.93 [−0.84, +4.90] · 2.86 |
+
+- **I1 ✗ for both models.** At the two pre-registered alterations (quiet ×0 and ×3), neither shift is significant, and neither exceeds the generic shift on control items. **There is no evidence either model can tell its quiet tail is being altered.**
+- **An exploratory hint, not predicted:** Gemma at quiet ×1.5 and ×2 shifts toward "altered" by more than its generic shift (CI excludes 0). That's 2 of 14 comparisons with no multiple-comparison correction, and P(altered) stays ≈ 0.2% even there. It would need its own pre-registered replication.
+
 ## Next steps
 1. The clean Gemma within-pair test: `gemma-3-1b-it` vs `gemma-3-1b-pt` (same size, same gate). Does Gemma's post-training remove the effect?
 2. The knob on a **base** model's capability, where the quiet tail *is* relied on (needs a few-shot benchmark format for base models).
