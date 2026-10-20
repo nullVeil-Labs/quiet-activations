@@ -11,7 +11,7 @@ Each protocol was frozen (committed) before its run. Failures are reported as fa
 **Status (2026-10-19):** run 1 is complete for all four ideas. Idea 2 also has an exploratory follow-up and two pre-registered phases on 3 models.
 - Results: [`ANALYSIS.md`](ANALYSIS.md).
 - Prior work: [`RELATED_WORK.md`](RELATED_WORK.md).
-- **Next step:** a Gemma *base* model, and base/instruct pairs with documented post-training recipes (does RL-heavy post-training remove the effect?).
+- **Next step:** a Gemma *base* model, and testing whether distillation-style post-training (Qwen3) removes the effect while light SFT + DPO (SmolLM2) does not.
 
 | Idea | Pre-registered predictions | Headline |
 |---|---|---|

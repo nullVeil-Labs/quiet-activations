@@ -188,12 +188,15 @@ Run `results/20261020-035927-ideas2s`. Protocol `protocols/idea2_phase5.md`, fro
 - Quiet MLP activations matter more than an equal energy of mid-tier ones in **both base models tested** (Qwen3-1.7B-Base, SmolLM2-1.7B) and in **SmolLM2-1.7B-Instruct**.
 - They do not in **Qwen3-1.7B (instruct)**, **Gemma-3-4B-it** or **Gemma-4-E4B-it**.
 - So post-training **can** remove the effect (Qwen3) but **does not always** (SmolLM2). Phase 4's "training removes it" is specific to Qwen3's post-training, not a general law.
-- A hypothesis, not tested: the difference lies in the post-training recipe. Qwen3's pipeline is multi-stage and includes reinforcement learning and "thinking" training. SmolLM2-Instruct's is believed to be lighter (SFT + preference optimisation; not verified here).
+- **The post-training recipes, checked in the tech reports (2026-10-20).** This replaces an earlier unverified guess that RL was the difference.
+  - **Qwen3-1.7B** received **no RL**. Per the Qwen3 Technical Report (arXiv 2505.09388), the four-stage RL pipeline was used for the flagship models only. Small models such as 1.7B were post-trained by **strong-to-weak distillation** from Qwen3-32B / 235B-A22B: off-policy distillation on teacher outputs in /think and /no_think modes, then on-policy distillation "aligning its logits with those of a teacher model" (a KL objective).
+  - **SmolLM2-1.7B-Instruct** received SFT on SmolTalk for 2 epochs, then **DPO** on UltraFeedback (2 epochs, lr 1e-6, β = 0.5), with no RL (SmolLM2 paper, arXiv 2502.02737).
+  - **Hypothesis (untested):** logit distillation from a much larger teacher reshapes the student's computation more than light SFT + DPO, including its reliance on the quiet tail. A cheap, observational first check: compare how far each instruct model's MLP weights moved from its base.
 - The Gemma nulls can't be attributed to training or architecture without a Gemma base model.
 
 ## Next steps
 1. A Gemma **base** model (gated; needs a licence acceptance), to separate family from training for Gemma.
-2. More base/instruct pairs whose post-training recipes are documented, to test the recipe hypothesis: is RL-heavy post-training what removes reliance on the quiet tail?
+2. Test the recipe hypothesis: (a) the relative weight change, instruct vs base, per pair (observational); (b) more pairs with documented recipes, distillation-trained vs SFT/DPO-trained.
 3. A dose-response check (scaling the quiet tail by 0–3×, with a mid-tier control) in base and instruct models.
 4. *What* the quiet tail does where it matters, e.g. its effect on the calibration and entropy of next-token predictions. Then SAE features instead of neurons.
 2. Idea 1: fit one shared vector field against layer-specific fits to the real residual updates, scored on held-out error (open per RELATED_WORK.md).
