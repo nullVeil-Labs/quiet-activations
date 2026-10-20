@@ -14,7 +14,11 @@ MODELS = {
     "gemma-3-4b-it": ROOT / "models" / "gemma-3-4b-it",
     "gemma-4": ROOT / "models" / "gemma-4",  # google/gemma-4-E4B-it
 }
-EXTRA_MODELS = {"qwen3-1.7b": ROOT / "models" / "qwen3-1.7b"}  # used by later phases, not by phase 2's run()
+EXTRA_MODELS = {  # used by later phases, not by phase 2's run()
+    "qwen3-1.7b": ROOT / "models" / "qwen3-1.7b",
+    "smollm2-1.7b": ROOT / "models" / "SmolLM2-1b-base",  # HuggingFaceTB/SmolLM2-1.7B (base), folder name as downloaded
+    "smollm2-1.7b-instruct": ROOT / "models" / "smollm2-1.7b-instruct",
+}
 BOOKS = [ROOT / "data" / "pg1342.txt", ROOT / "data" / "pg1228.txt"]
 N_CALIB, N_EVAL, MAX_TOKENS = 20, 100, 256  # per book
 ENERGY_FRAC = 0.05

@@ -156,6 +156,21 @@ def part_b(name, calib, b_set):
             "has_post_ffn_norm": hasattr(layers[0], "post_feedforward_layernorm"), "per_layer": per_layer}
 
 
+def training_verdict(base, inst, delta):
+    """Pre-registered decision rule (protocols/idea2_phase4.md, Part A). Returns (base_replicates, verdict)."""
+    dlo, dhi = delta[1]
+    ok = base[0] > 0.01 and base[1][0] > 0
+    if not ok:
+        return ok, "not judged (base did not replicate)"
+    if inst[1][0] <= 0 and not (dlo <= 0 <= dhi):
+        return ok, "training removes it"
+    if inst[0] > 0.01 and inst[1][0] > 0 and dlo <= 0 <= dhi:
+        return ok, "not training"
+    if inst[1][0] > 0 and not (dlo <= 0 <= dhi):
+        return ok, "weakened, not removed"
+    return ok, "inconclusive"
+
+
 def run(out_dir):
     calib, a_set, b_set = texts()
     res = {"n_A": len(a_set), "n_B": len(b_set), "A": {}, "B": {}}
@@ -171,19 +186,8 @@ def run(out_dir):
         res["B"][name] = part_b(name, calib, b_set)
         print(f"  rho quiet {res['B'][name]['median_rho_quiet']:.4f} mid {res['B'][name]['median_rho_mid']:.4f}")
 
-    base, inst = res["A"]["qwen3-1.7b-base"]["D"], res["A"]["qwen3-1.7b"]["D"]
-    dlo, dhi = res["A"]["delta_D_base_minus_instruct"][1]
-    p4a1 = base[0] > 0.01 and base[1][0] > 0
-    if not p4a1:
-        verdict = "not judged (P4A1 failed)"
-    elif inst[1][0] <= 0 and not (dlo <= 0 <= dhi):
-        verdict = "training removes it"
-    elif inst[0] > 0.01 and inst[1][0] > 0 and dlo <= 0 <= dhi:
-        verdict = "not training"
-    elif inst[1][0] > 0 and not (dlo <= 0 <= dhi):
-        verdict = "weakened, not removed"
-    else:
-        verdict = "inconclusive"
+    p4a1, verdict = training_verdict(res["A"]["qwen3-1.7b-base"]["D"], res["A"]["qwen3-1.7b"]["D"],
+                                     res["A"]["delta_D_base_minus_instruct"])
     res["predictions"] = {"P4A1_base_replicates": p4a1, "training_verdict": verdict,
                           "P4B_quiet_mostly_radial_in_all_4": all(b["ratio"] > 1.5 for b in res["B"].values())}
     save_json(out_dir / "idea2_phase4.json", res)
