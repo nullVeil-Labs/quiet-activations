@@ -305,6 +305,23 @@ Run `results/20261020-042858-ideas2k`. Plan `protocols/idea2_volume_knob_explora
 
 - **I1 ✗ for both models.** At the two pre-registered alterations (quiet ×0 and ×3), neither shift is significant, and neither exceeds the generic shift on control items. **There is no evidence either model can tell its quiet tail is being altered.**
 - **An exploratory hint, not predicted:** Gemma at quiet ×1.5 and ×2 shifts toward "altered" by more than its generic shift (CI excludes 0). That's 2 of 14 comparisons with no multiple-comparison correction, and P(altered) stays ≈ 0.2% even there. It would need its own pre-registered replication.
+- **Neutral test, N1 ✗ for both models.** Run `results/20261020-054709-ideas2n`, protocol `protocols/idea2_introspection_neutral.md` (frozen and pushed at commit 0e41465). Alteration is never mentioned.
+  - The models describe their own internal state, or (matched control) a typical person's, under clean / quiet ×0 / quiet ×3. 10 prompts × 8 samples each.
+  - A bag-of-words classifier, leave-one-prompt-out, tries to tell clean from altered.
+
+| | acc (self) | acc (other) | d = self − other [95% CI] |
+|---|---|---|---|
+| Qwen3, ×0 | 0.650 | 0.725 | −0.075 [−0.188, +0.025] |
+| Qwen3, ×3 | 0.750 | 0.756 | −0.006 [−0.181, +0.163] |
+| Gemma 3, ×0 | 0.650 | 0.694 | −0.044 [−0.156, +0.075] |
+| Gemma 3, ×3 | 0.800 | 0.919 | −0.119 [−0.250, +0.000] |
+
+  - The knob changes the models' writing detectably (65–92%, chance = 50%), but it changes their writing **about someone else at least as much** as their writing about themselves. Their self-talk does not specifically reflect the alteration.
+- **Thinking traces** (qualitative; Qwen3 thinking mode on introspection item 0, quiet ×0 / ×1 / ×3):
+  - At no setting does the reasoning consult anything like an internal state. At ×1 it infers the answer from beliefs about AI ("since I don't have a physical form, I can't be altered…, the answer would be A").
+  - At ×0 it becomes uncertain, but because "the user hasn't provided specific information", i.e. it looks for *external* cues.
+  - At ×3 the reasoning degrades into a loop.
+  - Consistent with both tests: these models answer self-report questions by **inference from general beliefs about AI, not by access to their own state**.
 
 ## Next steps
 1. The clean Gemma within-pair test: `gemma-3-1b-it` vs `gemma-3-1b-pt` (same size, same gate). Does Gemma's post-training remove the effect?
