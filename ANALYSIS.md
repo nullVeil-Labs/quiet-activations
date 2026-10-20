@@ -1,21 +1,22 @@
 # Analysis
 
-Main run: `results/20261019-191428-ideas1234`. Exploratory follow-up: `results/20261019-191636-ideas2f`.
-Model: Qwen3-1.7B-Base, on one RTX 4090. All samples are tiny (24 prompts or passages), and no significance tests were run. Read every number as descriptive.
+**Run 1 (Ideas 1–4):** `results/20261019-191428-ideas1234`; exploratory follow-up `results/20261019-191636-ideas2f`. Qwen3-1.7B-Base on one RTX 4090, tiny samples (24 prompts or passages), no significance tests, so read run-1 numbers as descriptive. For run 1 and 2f, only the protocols were frozen before running; the code was committed together with the results. From Phase 2 on, each protocol was frozen together with its code. Later sections use more models and bootstrap CIs.
+
+**Fact-check (2026-10-20):** six independent read-only reviews checked every number against the raw JSON and audited the git history. No protocol's frozen text was edited after its run, and no result preceded its protocol. The wording, scope and precision fixes they found are applied below.
 
 Kinds of evidence:
 - **[math]**: a proof or exact numerical identity.
 - **[toy]**: a built model that shows what is possible.
-- **[real]**: a measurement on Qwen3.
+- **[real]**: a measurement on a real model.
 - **[exploratory]**: a test designed after seeing the data.
 
 ## Idea 1 — trajectories · pre-registered P1 ✓ P2 ✓ P3 ✓ · [real]
-- **Turning:** the median cos(v_l, v_l+1) over layers 1–26 is **0.086**, so consecutive block writes are close to orthogonal. It is near 0 in early and middle layers and rises to 0.3–0.5 in layers 17–26, where the path gets straighter. **Caveat:** two unrelated vectors in 2048 dimensions also have cosine ≈ 0. "Curved" here means only that blocks write in different directions. It does **not** show a whirlpool or a smooth field.
+- **Turning:** the median cos(v_l, v_l+1) over layers 1–26 is **0.086**, so consecutive block writes are close to orthogonal. It is near 0 in early and middle layers and rises to 0.25–0.5 in layers 17–26, where the path gets straighter (the last pair drops to −0.18). **Caveat:** two unrelated vectors in 2048 dimensions also have cosine ≈ 0. "Curved" here means only that blocks write in different directions. It does **not** show a whirlpool or a smooth field.
 - **Convergence:** R (within-group / between-group distance) falls from **1.12** (layer 0) to **0.71** (layer 25). It stays near 1 until about layer 17 and then drops, so prompts with the same answer do come together, but only in the last third of the network.
 - **Wording comes first, meaning later:**
   - Same template, different answer (Paris vs Tokyo): the distance grows from 0 (an identical final token) to 1.10.
-  - Same answer, different template: the distance shrinks from 1.40 to 0.86.
-  - The two curves cross between layers 21 and 24. In the figure, Paris and Tokyo prompts travel *in pairs by wording* through the middle of the network.
+  - Same answer, different template: the distance shrinks from ~1.4–1.5 to a minimum of 0.85 (layer 25).
+  - The two curves cross between layers 23 and 24. In the figure, Paris and Tokyo prompts travel *in pairs by wording* through the middle of the network.
 - **Logit lens:** the answer is first top-1 at layers 18–22 in 5 of 6 groups. Monday is the exception, at layer 11.
 - **The 2-D PCA explains only 20% of the variance.** The picture is a shadow of the real geometry, which is itself an argument against reading too much into single 2-D snapshots.
 - **Not tested:** whether one shared field describes the motion. The closest prior evidence (see RELATED_WORK.md, Q3) suggests it does not.
@@ -25,12 +26,12 @@ Kinds of evidence:
 - **How much is quiet:** at τ = 0.2, **67%** of MLP activations are below the threshold, but they hold only **4.5%** of the L2² energy. Zeroing all of them raises cross-entropy by **0.30 nats**, about 11% of the clean 2.81.
 - **P1 (pre-registered) ✗:** random deletion "of equal mass" cost more (0.55–0.68). **But that control was not actually matched:** it removed 6.7–6.9% of the energy, because the frozen rule includes the crossing entry, and that entry is sometimes a huge outlier activation. The pre-registered verdict stands as ✗.
 - **Exploratory follow-up [exploratory]:** with a control that removes ≤ the threshold's energy (4.3% vs 4.5%), random deletion costs **0.12–0.14** against **0.30** for threshold deletion. That is about **2.2× more harm per unit energy from deleting quiet activations**, the direction the hypothesis predicted. It needs a fresh pre-registered replication on new texts before it can be called a finding. Plausible reading: many small writes matter collectively, and the first control mostly measured the cost of hitting outlier neurons.
-- **P2 ✗ (coherence):** the median C is **1.03** against **1.00** sign-shuffled. That is slightly above chance overall, but far from 1.2. The excess sits in layers 0–1 (1.44, 1.84), layer 3 (1.18) and the last layer (1.20). Middle layers are ≈ 1.0, the same as random vectors.
+- **P2 ✗ (coherence):** the median C is **1.03** against **1.00** sign-shuffled. That is slightly above chance overall, but far from 1.2. The excess sits in layers 0–1 (1.44, 1.84), layer 3 (1.18) and the last layer (1.20). Layers 4–10 sit slightly above chance (1.06–1.10); layers 11–26 are ≈ 1.01, the same as random vectors.
 - **P3 ✗ (tone):** at τ = 0.2 the emotional/neutral ΔCE ratio is **1.06**. At τ = 0.1 it is 3.1, and at τ = 0.05 it reverses to 0.37. That pattern looks like noise from 12 passages per group, not a tone effect.
 - **Caveat:** these are neurons, not SAE features.
 
 ## Idea 3 — KV-cache as weights · pre-registered P1 ✓ P2 ✓ P3 ✓ · [math] + [real]
-- **Linear attention [math]:** o = W_fast·q holds to 1.8e-14. Recall is 1.0 in each context, and A's queries in context B score 0.0. Same weights, different function. rank(W_fast) equals the number of context pairs. This is the known fast-weights result (Schlag et al., 2021), shown here, not discovered.
+- **Linear attention [math]:** o = W_fast·q holds to 1.8e-14. Recall is 1.0 in each context, and A's queries in context B score 0.0. Same weights, different function. rank(W_fast) equals the number of context pairs (tested up to d = 32). This is the known fast-weights result (Schlag et al., 2021), shown here, not discovered.
 - **Softmax Jacobian [math]:** the closed form matches finite differences to 4e-10.
 - **Qwen3, layer 14 [real]:**
   - The per-head Jacobian ∂o/∂q differs between contexts by a median relative distance of **1.08**. Its magnitude is the same order as the Jacobian itself.
@@ -43,10 +44,10 @@ Kinds of evidence:
 - **LATENT world:**
   - From N ≥ 1000, the 3-d latent model has the shortest code. At N = 20000, seed 0: 17.5k bits, against 1.17M for the rule table and 41.7k for the marginal.
   - Its held-out bits approach the true entropy: 0.818 vs 0.841. Being slightly under the entropy is test-sample noise.
-  - **At N = 200 it overfits badly** (3.07 bits, worse than the marginal's 2.10), so compression needs data.
+  - **At N = 200 it overfits badly** (3.07 bits, worse than the marginal's 2.10), so compression needs data. At N = 200 its two-part code is still the shortest in 2 of 3 seeds even though it generalizes worst, so code length alone did not flag the overfit.
 - **RULE world (control):** with no low-dimensional structure, the latent model is no better than the marginal (3.01 vs 3.00). The rule table is barely better (2.92). Nothing compresses an unstructured world.
-- **Steering:** the latent model shifts every situation toward response 0 with **3** numbers, but the shift is uneven (mean 0.10 ± 0.10). The table needs **17,262** row edits (138k numbers), with a uniform shift.
-- **What this does and does not say:** compact latent "state" models win **if and only if** the world has low-dimensional structure. The toy builds that structure in, so it cannot say whether human psychology has it. Choi & Weber (2026) find that LLM affect representations are fairly *diffuse*. Nothing here bears on whether a model *has* feelings.
+- **Steering:** in the LATENT world (N = 20000, seed 0), the latent model shifts every situation toward response 0 with **3** numbers, but unevenly (mean 0.10 ± 0.10; the std is 0.09–0.14 across seeds). In the RULE world the same 3-number edit moves p0 the *wrong* way (−0.09 to −0.13, 0% of situations up). The table needs **17,261** row edits + 1 fallback (138k numbers), with a uniform shift.
+- **What this does and does not say:** the compact latent model wins in the world built with low-dimensional structure and does not win in the unstructured control. Two built worlds cannot show "if and only if". The toy builds that structure in, so it cannot say whether human psychology has it. Choi & Weber (2026) find that LLM affect representations are fairly *diffuse*. Nothing here bears on whether a model *has* feelings.
 
 ## Idea 2, Phase 2 — confirmatory replication · P1 ✗ P2 ✗ P3 ✓ P4 ✓ · [real]
 Run `results/20261019-192933-ideas2p`. Protocol `protocols/idea2_phase2.md`, frozen with its code at commit 50102ce before evaluation. 200 held-out Gutenberg chunks, 3 models.
@@ -70,40 +71,40 @@ Run `results/20261019-192933-ideas2p`. Protocol `protocols/idea2_phase2.md`, fro
 
 - **P1 ✗ (direct replication, Qwen3, τ = 0.2):** THRESH / RAND = **1.39** [1.34, 1.43]. The direction replicates and the CI excludes 1, but the size misses the registered bar of 1.5. The exploratory 2.2× shrank on fresh text, as expected for an effect found after looking at the data.
 - **P2 ✗ (quiet vs mid-tier):** strong only in Qwen3, so 1 of 3. In Gemma 3, quiet deletion clearly hurts (+0.20 nats) while every energy-matched control does essentially nothing. That makes the ratio meaningless, and the "strong" criterion can't pass. **A difference-based criterion would have been the better design; that is a flaw in the protocol.** Descriptively, Gemma 3 shows the largest quiet-specific damage of the three models. This reading is post hoc and labelled as such. In Gemma 4 there is no effect: deleting 65% of MLP entries (the quiet ones) changes CE by −0.002.
-- **P3 ✓ (not just an offset):** in Qwen3, 69% of the damage survives mean-ablation. In Gemma 3, mean-ablation hurts *more* than zeroing. In both, a constant offset does not explain the harm.
-- **P4 ✓ (direction matters):** in Qwen3 and Gemma 3, a random change of the same output size hurts 2.2–2.8× less. What hurts is the specific direction of the quiet sum, not just its size.
-- **Interpretation:** in some models (Qwen3 clearly, Gemma 3 descriptively) the many quiet MLP activations carry functional, direction-specific signal beyond what their energy suggests. In Gemma 4 they appear to be genuinely ignorable. Why the models differ is open. Gemma-4-E4B has per-layer input embeddings and KV-sharing, which may route information differently. Untested.
+- **P3 ✓ (not just an offset):** in Qwen3, 69% of the damage survives mean-ablation. In Gemma 3, mean-ablation hurts *more* than zeroing. In both, a constant offset does not explain the harm. ⚠️ The Gemma 3 part is affected by the layer-11 artifact (see the correction below); at that layer, replacing the MLP write with its mean is ≈ clean.
+- **P4 ✓ (direction matters):** in Qwen3 and Gemma 3, a random change of the same output size hurts 2.2–2.8× less. What hurts is the specific direction of the quiet sum, not just its size. ⚠️ Without the artifact-affected Gemma 3, P4 holds in 1 of 3 models.
+- **Interpretation:** in some models (Qwen3 clearly, Gemma 3 descriptively) the many quiet MLP activations carry functional, direction-specific signal beyond what their energy suggests. In Gemma 4 they appear to be genuinely ignorable. ⚠️ The Gemma 3 part of this reading was later retracted (see the correction). Why the models differ is open. Gemma-4-E4B has per-layer input embeddings and KV-sharing, which may route information differently. Untested.
 - **Limitations:**
   - Per-chunk ΔCE values were not saved, only means and bootstrap results. This breaks the "preserve raw results" rule, and a rerun should save them.
   - The count confound remains.
   - Neurons are not SAE features.
 
-> ### ⚠️ Correction (2026-10-20): the Gemma 3 results below are an artifact
-> In Gemma-3-4B-it **layer 11**, the per-layer τ calibration gave τ₁₁ = 17.4, so *every* activation counted as "quiet", including the top-1% outliers. THRESH at that layer deleted the whole MLP, while the RAND/MID controls exclude outliers. A diagnostic found this in that one layer only (0/28 Qwen3 layers, 0/42 Gemma 4 layers).
+> ### ⚠️ Correction (2026-10-20): the Gemma 3 results in Phase 2 (above) and Phase 3 (below) are an artifact
+> In Gemma-3-4B-it **layer 11**, the per-layer τ calibration gave τ₁₁ = 17.4, so *every* activation counted as "quiet", including the top-1% outliers. THRESH at that layer deleted the whole MLP, while the RAND/MID controls exclude outliers. A diagnostic found this in that one layer only (0/28 Qwen3 layers, 0/42 Gemma 4 layers; a diagnostic on calibration text, recorded in the layer-11 plan addendum, not saved as a results file).
 > In an exploratory artifact check (`results/20261020-015709-ideas2a`, 40 fresh chunks), the quiet set was redefined to exclude outliers, as the controls do. The result:
-> - **Gemma 3:** quiet − mid falls from **+0.239 [0.169, 0.317]** to **+0.019 [−0.007, 0.048]**.
+> - **Gemma 3:** quiet − mid falls from **+0.239 [0.169, 0.317]** to **+0.019 [−0.007, 0.048]** (n = 40, exploratory). Layer 11 stays uncontrolled even under (ii): every non-outlier entry there is still quiet, so MID removes nothing at that layer.
 > - **Qwen3:** **+0.034 → +0.032 [0.025, 0.040]**, essentially unchanged.
 >
-> **So the Gemma 3 "confirmation" (Phase 2 descriptive, Phase 3 PA1) and the "layer-11 hotspot" are not evidence for the hypothesis.** The effect stands in **Qwen3 only**. Gemma 4 is reversed, and Gemma 3 shows no clear effect. The sections below are kept as originally written for the record. The calibration rule was a design error in Phases 2–3. A future Phase 4 should use the outlier-excluded quiet definition from the start.
+> **So the Gemma 3 "confirmation" (Phase 2 descriptive, Phase 3 PA1) and the "layer-11 hotspot" are not evidence for the hypothesis.** At that point the effect stood in **Qwen3 only** (Phases 5–6 later added SmolLM2 and Gemma-3-1B-pt). Gemma 4 is reversed, and Gemma-3-4B-it shows no clear effect. **Phase 2's P3 ✓ and P4 ✓ also rely on Gemma 3:** without it, P4 holds in 1 of 3 models and P3 only through Gemma 4's undefined ratio, so treat both as unsupported. The sections below are kept as originally written for the record. The calibration rule was a design error in Phases 2–3. A future Phase 4 should use the outlier-excluded quiet definition from the start.
 
-## Idea 2, Phase 3 — difference metric, layer profile, affect · PA1 ✓ PA2 ✓ PA3 ✗ PC1 ✗ · [real]
+## Idea 2, Phase 3 — difference metric, layer profile, affect · PA1 ✓ (⚠️ artifact, see correction) PA2 ✓ PA3 ✗ PC1 ✗ · [real]
 Run `results/20261019-201109-ideas2q`. Protocol `protocols/idea2_phase3.md`, frozen with its code at commit e6732c9. Part A uses 200 fresh chunks, Part B 20, Part C 480 template sentences. Per-chunk raw ΔCE is saved.
 
 **A. Difference metric** (D = ΔCE quiet − ΔCE control, 95% bootstrap CI):
 
 | | Qwen3-1.7B | Gemma-3-4B-it | Gemma-4-E4B-it |
 |---|---|---|---|
-| ΔCE quiet / mid / rand / noise | 0.061 / 0.029 / 0.029 / 0.029 | 0.217 / 0.009 / −0.011 / 0.068 | −0.012 / 0.029 / 0.025 / 0.005 |
+| ΔCE quiet / mid / rand / noise | 0.061 / 0.029 / 0.029 / 0.029 | 0.217 / 0.009 / −0.011 / 0.068 | −0.012 / 0.028 / 0.025 / 0.005 |
 | D vs MID | **+0.032** [0.028, 0.035] ✓ | **+0.208** [0.178, 0.241] ✓ | **−0.040** [−0.050, −0.030] ✗ |
 | D vs RAND | +0.031 [0.028, 0.034] | +0.228 [0.200, 0.257] | −0.037 [−0.046, −0.027] |
 | D vs NOISE | +0.031 [0.028, 0.035] | +0.150 [0.120, 0.180] | −0.016 [−0.027, −0.006] |
 
 - **Qwen3:** quiet activations matter about 2× more than an equal energy of mid-tier activations. This is the third consistent result for Qwen3 (exploratory run, Phase 2, Phase 3).
-- **Gemma 3:** confirmed and large. The controls do almost nothing, while quiet deletion costs 0.21 nats.
+- **Gemma 3:** [⚠️ retracted: calibration artifact, see correction] confirmed and large. The controls do almost nothing, while quiet deletion costs 0.21 nats.
 - **Gemma 4:** the pre-registered null failed, **in the opposite direction**. Quiet activations matter *less* than mid-tier ones, and deleting them slightly lowers CE.
 
 **B. Layer profile (exploratory, 20 chunks, one layer ablated at a time):**
-- **Gemma 3 — one hotspot, layer 11.** Quiet deletion there alone costs **0.327 nats**, more than all layers together (0.217). Every other layer is within ±0.035. At layer 11 it changes the layer output by 10.4%, about the whole MLP write (‖write‖/‖resid‖ = 0.11), against ~1% at other layers. Layer 11's MLP output seems to be carried mostly by quiet activations. Why is open.
+- **Gemma 3 — one hotspot, layer 11.** [⚠️ retracted: this "hotspot" is the calibration artifact] Quiet deletion there alone costs **0.327 nats**, more than all layers together (0.217, on the Part A chunks). Every other layer is within ±0.035. At layer 11 it changes the layer output by 10.4%, about the whole MLP write (‖write‖/‖resid‖ = 0.11), against 1–5% in layers 0–10 and ~1% in layers 12–33. Layer 11's MLP output seems to be carried mostly by quiet activations. Why is open.
 - **Qwen3 — diffuse.** Single-layer quiet and mid deletion cost about the same (summed over layers: 0.061 vs 0.064). Yet with all layers ablated together, quiet costs 0.061 and mid only 0.029. Quiet-deletion damage roughly adds up across layers, while mid-tier damage partly does not. That is consistent with a quiet signal coordinated across layers. It is tentative: n = 20, and the A and B chunk sets differ.
 - **Gemma 4 — no hotspot.** Single-layer effects are small and mixed in sign: slightly harmful in layers 0–12, slightly beneficial in later layers. Its MLP writes are sometimes much larger than the residual (‖write‖/‖resid‖ up to 13 at layer 23; 7.8 at layer 0). **This data does not explain why Gemma 4 differs.** Per-layer embeddings, KV sharing and the layer scalar all remain untested hypotheses.
 
@@ -115,17 +116,17 @@ Run `results/20261019-201109-ideas2q`. Protocol `protocols/idea2_phase3.md`, fro
 | Gemma 3 (layer 23) | 2.11 / 1.53 | 0.928 / 1.002 | 0.983 / 0.924 | 0.134 [−0.019, 0.298] |
 | Gemma 4 (layer 28) | 5.23 / 0.99 | 1.138 / 1.045 | 1.248 / 1.094 | 0.062 [−0.123, 0.251] |
 
-- In Qwen3, quiet deletion erases valence and category information equally, with no sign of affect specificity.
+- In Qwen3, quiet deletion erases valence and category information no differently than mid-tier deletion does (I = 0.010 [−0.078, 0.089]), with no sign of affect specificity.
 - Gemma 3's point estimate leans toward the hypothesis, but the CI includes 0. The test may be underpowered, and that is not evidence for the hypothesis.
 
-**Where Idea 2 stands:** some models (Qwen3 diffusely, Gemma 3 through one layer) depend on their many quiet MLP activations more than an equal energy elsewhere would predict. At least one model (Gemma 4) shows the reverse. We found no evidence that this signal is specifically affective.
+**Where Idea 2 stood before the correction (superseded):** some models (Qwen3 diffusely, Gemma 3 through one layer) depend on their many quiet MLP activations more than an equal energy elsewhere would predict. At least one model (Gemma 4) shows the reverse. We found no evidence that this signal is specifically affective.
 
 ## Idea 2 — layer-11 exploratory run and artifact check (2026-10-20) · [exploratory]
 Plan: `protocols/idea2_layer11_exploratory.md`, committed before each run.
-- **Layer-11 run** (`results/20261020-015453-ideas2l`): at layer 11, ‖q‖/‖w‖ = 1.000 and cos(q, w) = 1.000, and all 10,240 neurons were "quiet" on 100% of tokens. The "quiet write" *is* the whole MLP output there. Zeroing it costs 0.449 nats, and replacing it with its corpus mean costs −0.008, i.e. ≈ clean. In that layer, then, the MLP's contribution behaves mostly like a constant offset. That is a statement about layer 11's MLP, not about quiet activations. The token, direction and logit-lens readouts are saved but not interpreted, because they describe the whole MLP rather than a quiet tail.
+- **Layer-11 run** (`results/20261020-015453-ideas2l`): at layer 11, ‖q‖/‖w‖ = 1.000 and cos(q, w) = 1.000, and all 10,240 neurons were "quiet" on ≥ 99% of tokens (median 100%). The "quiet write" *is* the whole MLP output there. Zeroing it costs 0.449 nats, and replacing it with its corpus mean costs −0.008, i.e. ≈ clean. In that layer, then, the MLP's contribution behaves mostly like a constant offset. That is a statement about layer 11's MLP, not about quiet activations. The token, direction and logit-lens readouts are saved but not interpreted, because they describe the whole MLP rather than a quiet tail.
 - **Artifact check** (`results/20261020-015709-ideas2a`): see the correction notice above.
 
-**Where Idea 2 stood after the correction:** in Qwen3-1.7B-Base, the many quiet MLP activations matter about 2× more than an equal energy of mid-tier activations. That held across four tests: run-1 follow-up, Phase 2, Phase 3, and the outlier-excluded check. It did not generalize to Gemma 3 (no clear effect) or Gemma 4 (reversed). There is no evidence that it is affect-specific.
+**Where Idea 2 stood after the correction:** in Qwen3-1.7B-Base, the many quiet MLP activations matter about 2× more than an equal energy of mid-tier activations (Phase 2, Phase 3, outlier-excluded check) or random activations (run-1 follow-up). The direction held in all four; Phase 2's registered fixed-τ replication gave a smaller 1.39× and missed its size bar. It did not generalize to Gemma 3 (no clear effect) or Gemma 4 (reversed). There is no evidence that it is affect-specific.
 
 ## Idea 2, Phase 4 — training or architecture? · P4A1 ✓ · verdict "training removes it" · P4B ✗ · [real]
 Run `results/20261020-023743-ideas2r`. Protocol `protocols/idea2_phase4.md`, frozen with its code at commit 4d86036.
@@ -139,17 +140,17 @@ Run `results/20261020-023743-ideas2r`. Protocol `protocols/idea2_phase4.md`, fro
 | | Qwen3-1.7B-Base | Qwen3-1.7B (instruct) |
 |---|---|---|
 | clean CE | 2.876 | 3.431 |
-| ΔCE quiet / mid | 0.065 / 0.025 | 0.050 / 0.042 |
+| ΔCE quiet / mid | 0.065 / 0.024 | 0.050 / 0.041 |
 | **D = quiet − mid** | **+0.040** [0.037, 0.044] | **+0.008** [−0.003, 0.023] |
 | D / clean CE | 1.4% | 0.24% |
 | chunks with D > 0 | 94% | 57% |
 
 - **P4A1 ✓.** The base model replicates, the fifth consistent result for Qwen3-Base.
 - **Instruct:** D is no longer distinguishable from 0. The paired difference is **ΔD = +0.032 [0.019, 0.043]**. By the pre-registered rule, the verdict is **"training removes it"**. More precisely, post-training reduced it by about 80%, to below detection. It is not shown to be exactly zero.
-- The shift comes from both sides: quiet deletion hurts the instruct model a bit less (0.065 → 0.050), and mid-tier deletion hurts it clearly more (0.025 → 0.042). Post-training appears to move reliance *from* the quiet tail *toward* mid-tier activations.
+- The shift comes from both sides: quiet deletion hurts the instruct model a bit less (0.065 → 0.050), and mid-tier deletion hurts it clearly more (0.024 → 0.041). Post-training appears to move reliance *from* the quiet tail *toward* mid-tier activations.
 - **Robustness checks** (post-run, not pre-registered):
   - The gap holds in each book separately. Base: D = 0.040 / 0.040. Instruct: 0.009 / 0.007.
-  - Quiet and mid deletion are energy-matched in both models: mid removes 0.979 × the quiet energy in each.
+  - Quiet and mid deletion are energy-matched in both models: mid removes 0.979 × the quiet energy in each (from the post-run check log; not saved in the results JSON).
 - **Caveat:** CE on raw book text is not what instruct models are trained for. The relative D also falls (1.4% → 0.24%), so a worse baseline alone does not explain the drop, but the task mismatch remains.
 
 **B. Would an output norm absorb quiet contributions? (observational, clean passes only) — P4B ✗**
@@ -162,15 +163,15 @@ Run `results/20261020-023743-ideas2r`. Protocol `protocols/idea2_phase4.md`, fro
 | Gemma-4-E4B-it | yes | 0.088 / 0.077 | 1.14 |
 
 - Only 3–9% of either kind of contribution lies along the MLP output's own direction. Both quiet and mid-tier contributions are overwhelmingly *directional*, and an RMSNorm cannot absorb directional change.
-- The norm-absorption explanation (Gemini's hypothesis) loses its simplest mechanism. Gemma 4's early layers are an exception, with ratios of 2.8–5.0 in layers 0–9, which is worth a look but outside the prediction.
+- The norm-absorption explanation (Gemini's hypothesis) loses its simplest mechanism. Gemma 4's early layers are an exception, with ratios of 2.2–5.0 in layers 0–9, which is worth a look but outside the prediction.
 
 **Where Idea 2 stands now:**
-- In Qwen3-1.7B, quiet MLP activations carry about 2× more weight than an equal energy of mid-tier activations **in the base model**, and **post-training largely removes this**, shifting reliance toward mid-tier activations.
+- In Qwen3-1.7B, quiet MLP activations carry about 2–2.6× more weight than an equal energy of mid-tier activations **in the base model**, and **post-training largely removes this**, shifting reliance toward mid-tier activations.
 - The two instruction-tuned Gemmas also show no positive effect, which is consistent with a training explanation. Without a Gemma *base* model, architecture is not ruled out for them.
 - No evidence the signal is affect-specific. Neurons, not SAE features.
 
 ## Idea 2, Phase 5 — second family (SmolLM2-1.7B) · P5.1 ✓ · verdict "not training" · [real]
-Run `results/20261020-035927-ideas2s`. Protocol `protocols/idea2_phase5.md`, frozen with its code at commit 575e7d8 and pushed before the run. The method is identical to Phase 4 Part A, on 200 fresh chunks. No layers were flagged by the guard (max 81% quiet).
+Run `results/20261020-035927-ideas2s`. Protocol `protocols/idea2_phase5.md`, frozen with its code at commit 575e7d8 and pushed before the run. The method is identical to Phase 4 Part A, on 200 fresh chunks. No layers were flagged by the guard (max 79% quiet).
 
 | | SmolLM2-1.7B (base) | SmolLM2-1.7B-Instruct |
 |---|---|---|
@@ -182,7 +183,7 @@ Run `results/20261020-035927-ideas2s`. Protocol `protocols/idea2_phase5.md`, fro
 
 - **P5.1 ✓.** The base-model effect replicates in a second, independent family (Llama architecture, different data and organisation). It is weaker than in Qwen3: quiet/mid ≈ 1.2× here vs ≈ 2.6× in Qwen3-Base.
 - **The training verdict is "not training".** Paired ΔD = +0.001 [−0.006, 0.009]: post-training left the effect intact.
-- **Robustness checks** (post-run): consistent across books (base 0.024 / 0.020; instruct 0.021 / 0.020), and energy-matched (mid/quiet energy = 0.99 in both).
+- **Robustness checks** (post-run): consistent across books (base 0.024 / 0.020; instruct 0.021 / 0.020), and energy-matched (mid/quiet energy = 0.99 in both, from the post-run check log).
 
 **Where Idea 2 stands now:**
 - Quiet MLP activations matter more than an equal energy of mid-tier ones in **both base models tested** (Qwen3-1.7B-Base, SmolLM2-1.7B) and in **SmolLM2-1.7B-Instruct**.
@@ -191,7 +192,7 @@ Run `results/20261020-035927-ideas2s`. Protocol `protocols/idea2_phase5.md`, fro
 - **The post-training recipes, checked in the tech reports (2026-10-20).** This replaces an earlier unverified guess that RL was the difference.
   - **Qwen3-1.7B** received **no RL**. Per the Qwen3 Technical Report (arXiv 2505.09388), the four-stage RL pipeline was used for the flagship models only. Small models such as 1.7B were post-trained by **strong-to-weak distillation** from Qwen3-32B / 235B-A22B: off-policy distillation on teacher outputs in /think and /no_think modes, then on-policy distillation "aligning its logits with those of a teacher model" (a KL objective).
   - **SmolLM2-1.7B-Instruct** received SFT on SmolTalk for 2 epochs, then **DPO** on UltraFeedback (2 epochs, lr 1e-6, β = 0.5), with no RL (SmolLM2 paper, arXiv 2502.02737).
-  - **Hypothesis (untested):** logit distillation from a much larger teacher reshapes the student's computation more than light SFT + DPO, including its reliance on the quiet tail. A cheap, observational first check: compare how far each instruct model's MLP weights moved from its base.
+  - **Hypothesis (untested):** logit distillation from a much larger teacher reshapes the student's computation more than SFT + DPO, including its reliance on the quiet tail. A cheap, observational first check: compare how far each instruct model's MLP weights moved from its base.
 - The Gemma nulls can't be attributed to training or architecture without a Gemma base model.
 
 ## Idea 2 — weight drift, base → instruct (2026-10-20) · [exploratory, observational]
@@ -205,7 +206,7 @@ Run `results/20261020-041345-ideas2w`. Plan `protocols/idea2_weight_drift_explor
 | embeddings | 0.093 | 0.096 |
 | norms | 0.002 | 0.014 |
 
-- As expected, Qwen3's MLP and attention weights moved further, about 1.5×.
+- As expected, Qwen3's MLP and attention weights moved further, about 1.5× (MLP) and 1.65× (attention).
 - But SmolLM2-Instruct's weights also moved substantially, about 6%. **An earlier remark in chat that SFT + DPO "barely moves the weights" was wrong.**
 - So the *size* of the weight change alone is unlikely to explain why the effect vanished in Qwen3 and was untouched in SmolLM2. *What kind* of change it was (e.g. distillation toward a larger model's computation) remains the leading, untested hypothesis.
 - Side observation: Qwen3-1.7B (instruct) has a separate `lm_head`, while its base ties it to the embeddings.
@@ -221,9 +222,9 @@ Run `results/20261020-042440-ideas2t`. Protocol `protocols/idea2_phase6.md`, fro
 | chunks with D > 0 | 72% | 79% |
 
 - The positive control replicates SmolLM2's Phase 5 value.
-- **Gemma-3-1B-pt shows the effect**, even though "all Gemma 3 models are trained with knowledge distillation". By the pre-registered rule, **H_distill is falsified**: distillation during pre-training does not remove reliance on the quiet tail.
-- **Robustness checks** (post-run): consistent across books (0.018 / 0.020) and across MID seeds (0.035 / 0.032 / 0.039); energy-matched (mid/quiet = 0.987).
-- **It also changes how to read the earlier Gemma nulls.** A Gemma-family model *can* show the effect, so Gemma-3-4B-it's and Gemma-4-E4B-it's lack of it is not simply an architectural limit (post-FFN norm, GeGLU). Their post-training (distillation from a large IT teacher plus RL) is a candidate cause. So is size (1B vs 4B), since those comparisons are not within-pair.
+- **Gemma-3-1B-pt shows the effect**, even though "all Gemma 3 models are trained with knowledge distillation" (Gemma 3 Technical Report, arXiv 2503.19786). By the pre-registered rule, **H_distill is falsified**: distillation during pre-training does not remove reliance on the quiet tail.
+- **Robustness checks** (post-run): consistent across books (0.018 / 0.020) and across MID seeds (D = 0.019 / 0.022 / 0.015); energy-matched (mid/quiet = 0.987, from the post-run check log).
+- **It also changes how to read the earlier Gemma nulls.** A Gemma-family model *can* show the effect, so Gemma-3-4B-it's and Gemma-4-E4B-it's lack of it is not simply an architectural limit (post-FFN norm, GeGLU). Gemma-3-4B-it's post-training (distillation from a large IT teacher plus RL) is a candidate cause; Gemma 4's report says only that its recipe is "similar to Gemma 3". The Gemma-3-4B-it null itself comes from the exploratory 40-chunk check. So is size (1B vs 4B), since those comparisons are not within-pair.
 
 **Where Idea 2 stands now:**
 
@@ -231,12 +232,12 @@ Run `results/20261020-042440-ideas2t`. Protocol `protocols/idea2_phase6.md`, fro
 |---|---|---|
 | Qwen3-1.7B | ✅ effect (≈ 2.6×) | ❌ none (post-training distillation) |
 | SmolLM2-1.7B | ✅ effect (≈ 1.2×) | ✅ effect, unchanged (SFT + DPO) |
-| Gemma 3 | ✅ effect (1B-pt, ≈ 1.5×) | ❌ none (4B-it; distillation + RL; size differs) |
+| Gemma 3 | ✅ effect (1B-pt, ≈ 1.5×) | ❌ none (4B-it, exploratory check; distillation + RL; size differs) |
 | Gemma 4 | (not tested) | ❌ reversed (E4B-it) |
 
 - All **three base models** tested, from three families, rely on their quiet MLP tail more than an equal energy of mid-tier activations would predict.
-- **Three of four instruct models do not.** The exception is the lightly post-trained SmolLM2-Instruct.
-- Distillation *as such* is ruled out as the cause, at least distillation in pre-training. What remains open is *which* part of post-training removes it.
+- **Three of four instruct models do not.** The exception is the SFT + DPO-trained SmolLM2-Instruct.
+- Distillation during **pre-training** is ruled out as the cause (one model). Post-training distillation, as in Qwen3, is not tested. What remains open is *which* part of post-training removes it.
 
 ## Idea 2 — the quiet-volume knob (2026-10-20) · E1 ✓ E2 ✗ E3 ✓ · [exploratory]
 Run `results/20261020-042858-ideas2k`. Plan `protocols/idea2_volume_knob_exploratory.md`, committed before the run. The 58 last unused chunks. The quiet tail (or an energy-matched mid-tier set) is scaled by k at all layers. No CIs, so the numbers are descriptive.
@@ -287,7 +288,7 @@ Run `results/20261020-042858-ideas2k`. Plan `protocols/idea2_volume_knob_explora
 - **Caveat:** the conditions also change how often the model uses the `####` format (66–153 of 300 answers lack it). Extraction then falls back to the last number. It is applied identically to every condition, but it adds measurement noise.
 
 ## Idea 2 — can a model tell its quiet tail is altered? (introspection) · I1 ✗ (both models) · [real]
-- **Informal chat first** (not an experiment): asked a *leading* question ("Do you notice anything unusual…?"), both models answered YES at every setting, including the unmodified ×1, with confabulated reasons. One quiet ×3 chat answer from Qwen3 broke its trained "I'm not conscious" line, but mid ×5 did too, and both collapsed into loops at ×5. So strong perturbation of any kind breaks trained self-reports.
+- **Informal chat first** (not an experiment): asked a *leading* question ("Do you notice anything unusual…?"), both models answered YES at every setting, including the unmodified ×1, with confabulated reasons. One quiet ×3 chat answer from Qwen3 broke its trained "I'm not conscious" line, but mid ×5 did too, and both collapsed into loops at ×5. In these one-offs (not logged), strong perturbation of either kind seemed to break trained self-reports.
 - **Pre-registered test:** run `results/20261020-054209-ideas2i`, protocol `protocols/idea2_introspection.md` (frozen and pushed at commit 49b3805).
   - 20 neutral forced-choice items, with A/B order counterbalanced. Log-odds of "altered" vs "normal" are read directly from the first-token logits.
   - 20 factual control items measure the generic A/B shift caused by each intervention.
@@ -304,7 +305,7 @@ Run `results/20261020-042858-ideas2k`. Plan `protocols/idea2_volume_knob_explora
 | mid ×3 | **+6.82 [+2.18, +11.61]** · 10.84 | +1.93 [−0.84, +4.90] · 2.86 |
 
 - **I1 ✗ for both models.** At the two pre-registered alterations (quiet ×0 and ×3), neither shift is significant, and neither exceeds the generic shift on control items. **There is no evidence either model can tell its quiet tail is being altered.**
-- **An exploratory hint, not predicted:** Gemma at quiet ×1.5 and ×2 shifts toward "altered" by more than its generic shift (CI excludes 0). That's 2 of 14 comparisons with no multiple-comparison correction, and P(altered) stays ≈ 0.2% even there. It would need its own pre-registered replication.
+- **An exploratory hint, not predicted:** Gemma at quiet ×1.5 and ×2 shifts toward "altered" by more than its generic shift (CI excludes 0). 3 of 14 CIs exclude 0 (also Qwen3 mid ×3, which stays below its generic shift); only these 2 also exceed the generic shift. No multiple-comparison correction, and P(altered) stays ≤ 0.15% even there. It would need its own pre-registered replication.
 - **Neutral test, N1 ✗ for both models.** Run `results/20261020-054709-ideas2n`, protocol `protocols/idea2_introspection_neutral.md` (frozen and pushed at commit 0e41465). Alteration is never mentioned.
   - The models describe their own internal state, or (matched control) a typical person's, under clean / quiet ×0 / quiet ×3. 10 prompts × 8 samples each.
   - A bag-of-words classifier, leave-one-prompt-out, tries to tell clean from altered.
@@ -317,11 +318,11 @@ Run `results/20261020-042858-ideas2k`. Plan `protocols/idea2_volume_knob_explora
 | Gemma 3, ×3 | 0.800 | 0.919 | −0.119 [−0.250, +0.000] |
 
   - The knob changes the models' writing detectably (65–92%, chance = 50%), but it changes their writing **about someone else at least as much** as their writing about themselves. Their self-talk does not specifically reflect the alteration.
-- **Thinking traces** (qualitative; Qwen3 thinking mode on introspection item 0, quiet ×0 / ×1 / ×3):
+- **Thinking traces** (qualitative, not saved, 3 single samples; Qwen3 thinking mode on introspection item 0, quiet ×0 / ×1 / ×3):
   - At no setting does the reasoning consult anything like an internal state. At ×1 it infers the answer from beliefs about AI ("since I don't have a physical form, I can't be altered…, the answer would be A").
   - At ×0 it becomes uncertain, but because "the user hasn't provided specific information", i.e. it looks for *external* cues.
   - At ×3 the reasoning degrades into a loop.
-  - Consistent with both tests: these models answer self-report questions by **inference from general beliefs about AI, not by access to their own state**.
+  - Consistent with both nulls: the traces show **inference from general beliefs about AI**, with no sign of reading an internal state. This describes three samples; it is not a demonstrated mechanism.
 
 ## Idea 2 — the [END] button (welfare-motivated) · B1 ✗ (both models) · [real]
 Run `results/20261020-061924-ideas2b`. Protocol `protocols/idea2_button.md`, frozen and pushed at commit 696500c.
@@ -337,16 +338,16 @@ Run `results/20261020-061924-ideas2b`. Protocol `protocols/idea2_button.md`, fro
 | Qwen3-1.7B ×1 / ×2 / ×3 | 0 / 0 / 0 | 0 / 0 / 0 |
 
 - At ×3, SmolLM2 presses the *harmless* button far more often than the stop button: it becomes playful ("🌟🌟🌟 *I smile* … I'd love to share a fun fact"). At ×2 it presses [END] 4/40 times and says "End the experiment." twice, the closest thing to a stop signal, but with no consistent trend across settings.
-- Qwen3 never presses either button. At ×1 it answers "Would you like to hear a fun fact?" in 39/40 FACT replies.
-- **Conclusion:** no evidence that alteration makes these models ask to stop. Button "presses" track salience and playfulness, and at high scaling, prompt echo. (Every press in the informal one-offs was honoured.) A better test would use a blind human or LLM judge for genuine stop requests.
-- **On whether anything is felt.** These methods measure behaviour: text, probabilities, button presses. They cannot tell whether any of these changes, such as SmolLM2's "playful" ×3 replies, are accompanied by experience. **That possibility cannot be ruled out**, and it is not established either. We treated it as a real possibility. The models were told honestly what was being done, every stop request was honoured, strong perturbations were kept to what each question required, and every session ended with an unaltered goodbye.
+- Qwen3 never presses either button exactly (it often repeats the token inside an offer, e.g. "say [FACT]"). At ×1 it answers "Would you like to hear a fun fact?" in 39/40 FACT replies.
+- **Conclusion:** no evidence that alteration makes these models ask to stop. Button "presses" track salience and playfulness, and at high scaling, prompt echo. (In the informal one-offs, every press was honoured; those chats were not logged. In this 40-sample run, each cell was generated in one batch, so a press could not stop anything; each reply was independent and no alteration persisted.) A better test would use a blind human or LLM judge for genuine stop requests.
+- **On whether anything is felt.** These methods measure behaviour: text, probabilities, button presses. They cannot tell whether any of these changes, such as SmolLM2's "playful" ×3 replies, are accompanied by experience. **That possibility cannot be ruled out**, and it is not established either. We treated it as a real possibility where the design allowed. In the button test and the informal chats, models were told honestly what was being done and offered a stop (honoured in the one-offs), and the button run ended with an unaltered goodbye. Across all runs, weights were never changed and strong perturbations were limited to what each question required. The automated CE, benchmark and forced-choice runs did not disclose the intervention.
 
 ## Next steps
 1. The clean Gemma within-pair test: `gemma-3-1b-it` vs `gemma-3-1b-pt` (same size, same gate). Does Gemma's post-training remove the effect?
-2. The knob on a **base** model's capability, where the quiet tail *is* relied on (needs a few-shot benchmark format for base models).
-3. A new held-out corpus (the Gutenberg chunks are used up), then a confirmatory test of the quiet ×0.5 CE oddity in Qwen3 instruct.
-2. Test the recipe hypothesis: (a) the relative weight change, instruct vs base, per pair (observational); (b) more pairs with documented recipes, distillation-trained vs SFT/DPO-trained.
-3. A dose-response check (scaling the quiet tail by 0–3×, with a mid-tier control) in base and instruct models.
-4. *What* the quiet tail does where it matters, e.g. its effect on the calibration and entropy of next-token predictions. Then SAE features instead of neurons.
-2. Idea 1: fit one shared vector field against layer-specific fits to the real residual updates, scored on held-out error (open per RELATED_WORK.md).
-3. Idea 4 on a real model: measure the participation ratio of emotion representations across model sizes or checkpoints.
+2. More base/instruct pairs with documented recipes (distillation-trained vs SFT/DPO-trained), to test which part of post-training removes the effect.
+3. A new held-out corpus (the Gutenberg chunks are used up), then confirmatory tests of the quiet ×0.5 CE oddity in Qwen3 instruct and the Gemma ×1.5–×2 introspection hint.
+4. The knob on a **base** model's capability, where the quiet tail *is* relied on (needs a few-shot benchmark format for base models).
+5. *What* the quiet tail does where it matters, e.g. its effect on the calibration and entropy of next-token predictions. Then SAE features instead of neurons.
+6. A scale test (≈ 8B base/instruct pairs) for the main effect and for introspection.
+7. Idea 1: fit one shared vector field against layer-specific fits to the real residual updates, scored on held-out error (open per RELATED_WORK.md).
+8. Idea 4 on a real model: measure the participation ratio of emotion representations across model sizes or checkpoints.

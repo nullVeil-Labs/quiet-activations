@@ -60,7 +60,7 @@ footer { color: var(--muted); font-size: 13px; margin-top: 32px; }
 <header>
   <div class="streetlights" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
   <h1>Night Shift Lab</h1>
-  <p>Four interpretability hypotheses, each tested on Qwen3-1.7B or a toy. Run: <span class="mono" id="runid">no data</span></p>
+  <p>Four interpretability hypotheses, tested on several small LLMs or a toy. Run: <span class="mono" id="runid">no data</span></p>
 </header>
 <div class="note">Green or red chips show whether each <b>pre-registered</b> prediction held (see <span class="mono">protocols/</span>). The interactive toys show what a mechanism <i>could</i> do. Only the real-model numbers say what this model <i>does</i>.</div>
 <div class="note" id="nodata" hidden>No <span class="mono">data.js</span> found. Run <span class="mono">python run.py all</span> first. The toys still work.</div>
@@ -104,7 +104,7 @@ footer { color: var(--muted); font-size: 13px; margin-top: 32px; }
   <svg id="p2" height="260"></svg>
   <div class="legend" id="p2leg"></div>
   <div class="chips" id="chips2p"></div>
-  <div class="note"><b>Not replicated as registered.</b> Model-dependent: in Qwen3, quiet activations hurt ~2× more than the matched controls. In Gemma 3 they hurt while the controls do nothing. In Gemma 4 there is no effect.</div>
+  <div class="note"><b>Not replicated as registered.</b> Model-dependent: in Qwen3, quiet activations hurt ~2× more than the matched controls. In Gemma 3 they hurt while the controls do nothing <b>(⚠️ later shown to be a calibration artifact, see the correction below)</b>. In Gemma 4 there is no effect.</div>
   <h3 style="margin:22px 0 4px">Phase 3: where it lives, and does it carry emotion?</h3>
   <p class="q">Damage from deleting quiet vs mid-tier activations (same energy), one layer at a time. Run <span class="mono" id="p3run"></span>.</p>
   <div class="controls">model <select id="p3model"></select></div>
@@ -112,7 +112,7 @@ footer { color: var(--muted); font-size: 13px; margin-top: 32px; }
   <div class="legend"><span><i style="background:var(--accent)"></i>quiet, this layer only</span><span><i style="background:var(--accent2)"></i>mid-tier, this layer only</span></div>
   <table id="p3tab" style="margin-top:12px"></table>
   <div class="chips" id="chips3p"></div>
-  <div class="note"><b>⚠️ Correction (2026-10-20):</b> Gemma 3's layer-11 spike is a calibration artifact. At that layer every activation was counted as "quiet", so the whole MLP was deleted. With outliers excluded, Gemma 3's effect vanishes (+0.019 [−0.007, 0.048]), while Qwen3's holds (+0.032 [0.025, 0.040]). The effect stands in <b>Qwen3 only</b>. The emotion test came back <b>not supported</b>.</div>
+  <div class="note"><b>⚠️ Correction (2026-10-20):</b> Gemma 3's layer-11 spike is a calibration artifact. At that layer every activation was counted as "quiet", so the whole MLP was deleted. With outliers excluded, Gemma 3's effect vanishes (+0.019 [−0.007, 0.048]), while Qwen3's holds (+0.032 [0.025, 0.040]). At that point the effect stood in <b>Qwen3 only</b> (Phases 5–6 later found it in SmolLM2 and Gemma-3-1B base too). The Phase 3 chart below shows Gemma 3's artifact spike; PA1 ✓ for Gemma 3 is retracted. The emotion test came back <b>not supported</b>.</div>
   <div class="note"><b>Phase 4 (2026-10-20):</b> it is a <b>base-model</b> effect. Qwen3-1.7B-Base: quiet − mid = +0.040 [0.037, 0.044]. The same model after instruction tuning: +0.008 [−0.003, 0.023] (paired drop +0.032 [0.019, 0.043]). Post-training appears to move reliance from the quiet tail to mid-tier activations. Gemini's output-norm hypothesis was not supported: quiet contributions are mostly directional, not size changes.</div>
   <div class="note"><b>[END] button:</b> offered a stop button (vs a harmless fun-fact button), altered models did not ask to stop more often. At ×3, SmolLM2 pressed the fun-fact button 8/40 times and the stop button only 1/40.</div>
   <div class="note"><b>Introspection, neutral version + thinking traces:</b> the knob changes how they write about <i>someone else</i> as much as about themselves, and their private reasoning never checks an inner state. They answer "am I altered?" from general beliefs about AI. No sign of introspection.</div>
@@ -304,7 +304,7 @@ function lineChart(id, series, {xlog = false, xlabels = null, hline = null} = {}
   document.getElementById('p3run').textContent = window.PHASE3_RUN;
   const names = Object.keys(P.models), sel = document.getElementById('p3model');
   sel.innerHTML = names.map(n => `<option>${n}</option>`).join('');
-  if (names.includes('gemma-3-4b-it')) sel.value = 'gemma-3-4b-it';
+  if (names.includes('qwen3-1.7b-base')) sel.value = 'qwen3-1.7b-base';
   function draw() {
     const B = P.models[sel.value].B;
     lineChart('p3', [

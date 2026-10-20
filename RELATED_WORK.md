@@ -55,3 +55,11 @@ Searched 2026-10-20. Items not opened are marked *(unverified)*.
   - Stolfo et al., *Confidence Regulation Neurons in Language Models*, arXiv 2406.16254 *(unverified)*.
   - The GPT-4 Technical Report's calibration figure *(unverified in the body)*.
   - We did **not** measure calibration or entropy. Any link to these is a hypothesis.
+
+## Model and benchmark reports (checked 2026-10-20)
+Pages opened on this date. Used in ANALYSIS.md for the post-training recipes and the GSM8K test.
+- Qwen Team, *Qwen3 Technical Report*, arXiv 2505.09388. Small models post-trained by strong-to-weak distillation; no RL stage described for them.
+- Ben Allal et al., *SmolLM2: When Smol Goes Big*, arXiv 2502.02737. SmolLM2-Instruct: SFT on SmolTalk, then DPO on UltraFeedback.
+- Gemma Team, *Gemma 3 Technical Report*, arXiv 2503.19786. "All Gemma 3 models are trained with knowledge distillation"; post-training adds distillation from an IT teacher and RL.
+- Gemma Team, *Gemma 4 Technical Report*, arXiv 2607.02770. Pre- and post-training "similar to Gemma 3"; distillation not stated explicitly.
+- Cobbe et al., *Training Verifiers to Solve Math Word Problems* (GSM8K), arXiv 2110.14168 *(not re-opened today)*.

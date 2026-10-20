@@ -9,4 +9,11 @@ Checked 2026-10-19. `requirements.txt` pins the full tree (44 packages), and the
 - **Integrity:** pip verifies the sha256 hashes that the indexes publish for downloaded files. The lock does not use `--require-hashes`, so not verified beyond that.
 - **Not verified:** a manual review of package source code. No software is promised risk-free.
 
-The model weights (Qwen3-1.7B-Base; Apache-2.0 per the Qwen model card, not re-verified here) are not part of this repository and are not hashed, by policy.
+**Models** (not part of this repository; not hashed, by policy; file sizes were checked against Hugging Face for the downloaded ones):
+- Qwen3-1.7B-Base (`Qwen/Qwen3-1.7B-Base`), Apache-2.0. Local copy; revision not recorded.
+- Qwen3-1.7B (`Qwen/Qwen3-1.7B` @ `70d244cc`), Apache-2.0.
+- SmolLM2-1.7B (`HuggingFaceTB/SmolLM2-1.7B` @ `effd688a`) and SmolLM2-1.7B-Instruct (`@ 31b70e2e`), Apache-2.0.
+- Gemma-3-1B-pt (`google/gemma-3-1b-pt` @ `fcf18a2a`) and Gemma-3-4B-it (`google/gemma-3-4b-it`, local copy; revision not recorded), Gemma Terms of Use.
+- Gemma-4-E4B-it (`google/gemma-4-E4B-it`, local copy; revision not recorded), Apache-2.0 per its model card.
+
+**Data** (not committed; sources and sha256 in the protocols): Project Gutenberg #1342 and #1228 (`protocols/idea2_phase2.md`); GSM8K test set, MIT (`protocols/idea2_gsm8k_knob.md`).
