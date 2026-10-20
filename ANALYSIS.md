@@ -238,9 +238,35 @@ Run `results/20261020-042440-ideas2t`. Protocol `protocols/idea2_phase6.md`, fro
 - **Three of four instruct models do not.** The exception is the lightly post-trained SmolLM2-Instruct.
 - Distillation *as such* is ruled out as the cause, at least distillation in pre-training. What remains open is *which* part of post-training removes it.
 
+## Idea 2 — the quiet-volume knob (2026-10-20) · E1 ✓ E2 ✗ E3 ✓ · [exploratory]
+Run `results/20261020-042858-ideas2k`. Plan `protocols/idea2_volume_knob_exploratory.md`, committed before the run. The 58 last unused chunks. The quiet tail (or an energy-matched mid-tier set) is scaled by k at all layers. No CIs, so the numbers are descriptive.
+
+**ΔCE vs clean (k = 1):**
+
+| k | 0 | 0.5 | 1.5 | 2 | 3 |
+|---|---|---|---|---|---|
+| Qwen3-Base, quiet / mid | 0.047 / 0.025 | 0.009 / 0.005 | 0.010 / 0.003 | 0.048 / 0.021 | 0.200 / 0.103 |
+| Qwen3 instruct, quiet / mid | 0.026 / 0.010 | **−0.011** / 0.002 | 0.020 / 0.007 | 0.073 / 0.022 | 0.214 / 0.073 |
+| SmolLM2 base, quiet / mid | 0.112 / 0.083 | 0.043 / 0.017 | 0.034 / 0.021 | 0.147 / 0.084 | 0.446 / 0.339 |
+| SmolLM2-Instruct, quiet / mid | 0.099 / 0.069 | 0.037 / 0.016 | 0.027 / 0.018 | 0.134 / 0.070 | 0.398 / 0.290 |
+
+**KL(p_base ‖ p_instruct,k), i.e. distance to the clean base model:**
+
+| k | 0 | 0.5 | 1 | 1.5 | 2 | 3 |
+|---|---|---|---|---|---|---|
+| Qwen3, quiet | 0.693 | **0.649** | 0.656 | 0.678 | 0.735 | 0.880 |
+| Qwen3, mid | 0.669 | 0.659 | 0.656 | 0.668 | 0.685 | 0.749 |
+| SmolLM2, quiet | 0.292 | 0.235 | 0.205 | 0.234 | 0.341 | 0.605 |
+| SmolLM2, mid | 0.270 | 0.220 | 0.205 | 0.223 | 0.274 | 0.487 |
+
+- **E1 ✓.** Both base models are best at k = 1 in both directions: they are tuned to their own activations. In every model, the quiet tail is more sensitive than an equal energy of mid-tier activations, **whether scaled down or up**.
+- **E2 ✗.** Turning the instruct Qwen3's quiet tail *up* moves it **further from** its base, and faster than the mid-tier control. Post-training did not simply turn the quiet tail's weight down, so restoring its volume does not restore base-like behaviour. That fits "post-training changed *how* the quiet signal is used".
+- **E3 ✓.** SmolLM2-Instruct shows no quiet-specific move toward its base.
+- **An unconfirmed oddity:** in Qwen3 instruct, quiet ×0.5 slightly *lowers* CE (−0.011) and KL to base (0.649 vs 0.656). It is the only setting anywhere that beats clean. 58 chunks, no CI, and no fresh text left to replicate it on, so it is not claimed.
+
 ## Next steps
 1. The clean Gemma within-pair test: `gemma-3-1b-it` vs `gemma-3-1b-pt` (same size, same gate). Does Gemma's post-training remove the effect?
-2. The quiet-volume knob (planned, `protocols/idea2_volume_knob_exploratory.md`).
+2. A new held-out corpus (the Gutenberg chunks are used up), then a confirmatory test of the quiet ×0.5 oddity in Qwen3 instruct.
 2. Test the recipe hypothesis: (a) the relative weight change, instruct vs base, per pair (observational); (b) more pairs with documented recipes, distillation-trained vs SFT/DPO-trained.
 3. A dose-response check (scaling the quiet tail by 0–3×, with a mid-tier control) in base and instruct models.
 4. *What* the quiet tail does where it matters, e.g. its effect on the calibration and entropy of next-token predictions. Then SAE features instead of neurons.
