@@ -210,8 +210,37 @@ Run `results/20261020-041345-ideas2w`. Plan `protocols/idea2_weight_drift_explor
 - So the *size* of the weight change alone is unlikely to explain why the effect vanished in Qwen3 and was untouched in SmolLM2. *What kind* of change it was (e.g. distillation toward a larger model's computation) remains the leading, untested hypothesis.
 - Side observation: Qwen3-1.7B (instruct) has a separate `lm_head`, while its base ties it to the embeddings.
 
+## Idea 2, Phase 6 — a base model distilled in pre-training · P6.0 ✓ · P6.1 ✓ → distillation hypothesis **falsified** · [real]
+Run `results/20261020-042440-ideas2t`. Protocol `protocols/idea2_phase6.md`, frozen with its code and pushed at commit 86ed461 **before the test model was downloaded**. 200 fresh chunks. No layers flagged.
+
+| | SmolLM2-1.7B (positive control) | Gemma-3-1B-pt (distilled in pre-training) |
+|---|---|---|
+| clean CE | 2.234 | 3.074 |
+| ΔCE quiet / mid (ratio) | 0.140 / 0.117 (1.20×) | 0.055 / 0.036 (1.54×) |
+| **D = quiet − mid** | **+0.024** [0.018, 0.029] | **+0.019** [0.016, 0.022] |
+| chunks with D > 0 | 72% | 79% |
+
+- The positive control replicates SmolLM2's Phase 5 value.
+- **Gemma-3-1B-pt shows the effect**, even though "all Gemma 3 models are trained with knowledge distillation". By the pre-registered rule, **H_distill is falsified**: distillation during pre-training does not remove reliance on the quiet tail.
+- **Robustness checks** (post-run): consistent across books (0.018 / 0.020) and across MID seeds (0.035 / 0.032 / 0.039); energy-matched (mid/quiet = 0.987).
+- **It also changes how to read the earlier Gemma nulls.** A Gemma-family model *can* show the effect, so Gemma-3-4B-it's and Gemma-4-E4B-it's lack of it is not simply an architectural limit (post-FFN norm, GeGLU). Their post-training (distillation from a large IT teacher plus RL) is a candidate cause. So is size (1B vs 4B), since those comparisons are not within-pair.
+
+**Where Idea 2 stands now:**
+
+| | base | instruct |
+|---|---|---|
+| Qwen3-1.7B | ✅ effect (≈ 2.6×) | ❌ none (post-training distillation) |
+| SmolLM2-1.7B | ✅ effect (≈ 1.2×) | ✅ effect, unchanged (SFT + DPO) |
+| Gemma 3 | ✅ effect (1B-pt, ≈ 1.5×) | ❌ none (4B-it; distillation + RL; size differs) |
+| Gemma 4 | (not tested) | ❌ reversed (E4B-it) |
+
+- All **three base models** tested, from three families, rely on their quiet MLP tail more than an equal energy of mid-tier activations would predict.
+- **Three of four instruct models do not.** The exception is the lightly post-trained SmolLM2-Instruct.
+- Distillation *as such* is ruled out as the cause, at least distillation in pre-training. What remains open is *which* part of post-training removes it.
+
 ## Next steps
-1. Phase 6 (frozen and pushed at commit 86ed461 before the model was downloaded): a **base** model distilled in pre-training, `gemma-3-1b-pt`. If it shows the effect, the distillation hypothesis is falsified.
+1. The clean Gemma within-pair test: `gemma-3-1b-it` vs `gemma-3-1b-pt` (same size, same gate). Does Gemma's post-training remove the effect?
+2. The quiet-volume knob (planned, `protocols/idea2_volume_knob_exploratory.md`).
 2. Test the recipe hypothesis: (a) the relative weight change, instruct vs base, per pair (observational); (b) more pairs with documented recipes, distillation-trained vs SFT/DPO-trained.
 3. A dose-response check (scaling the quiet tail by 0–3×, with a mid-tier control) in base and instruct models.
 4. *What* the quiet tail does where it matters, e.g. its effect on the calibration and entropy of next-token predictions. Then SAE features instead of neurons.

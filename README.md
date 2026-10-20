@@ -1,6 +1,6 @@
 # Quiet Activations
 
-Do the many small ("quiet") MLP activations in LLMs matter more than their size suggests? In both base models we tested (Qwen3-1.7B-Base and SmolLM2-1.7B) they do. Post-training removed that reliance in Qwen3 but not in SmolLM2, and two instruction-tuned Gemma models don't show it. This repo started as small, honest experiments on four interpretability hypotheses (internally, "Night Shift R&D"). Idea 2 grew into the main study:
+Do the many small ("quiet") MLP activations in LLMs matter more than their size suggests? In all three base models we tested (Qwen3-1.7B-Base, SmolLM2-1.7B, Gemma-3-1B-pt), yes. In three of four instruction-tuned models, no. This repo started as small, honest experiments on four interpretability hypotheses (internally, "Night Shift R&D"). Idea 2 grew into the main study:
 1. Reasoning as trajectories.
 2. Sub-threshold "dark matter".
 3. The KV-cache as temporary weights.
@@ -11,12 +11,12 @@ Each protocol was frozen (committed) before its run. Failures are reported as fa
 **Status (2026-10-19):** run 1 is complete for all four ideas. Idea 2 also has an exploratory follow-up and two pre-registered phases on 3 models.
 - Results: [`ANALYSIS.md`](ANALYSIS.md).
 - Prior work: [`RELATED_WORK.md`](RELATED_WORK.md).
-- **Next step:** a Gemma *base* model, and testing whether distillation-style post-training (Qwen3) removes the effect while light SFT + DPO (SmolLM2) does not.
+- **Next step:** the same-size Gemma pair (`gemma-3-1b-pt` vs `gemma-3-1b-it`), and the quiet-volume knob.
 
 | Idea | Pre-registered predictions | Headline |
 |---|---|---|
 | 1 Trajectories | 3/3 held | States sort by wording mid-network, by answer only in the last third. Consecutive layer writes are near-orthogonal. |
-| 2 Dark matter | run 1: 0/3 · Phase 2: 2/4 · Phase 3: 2/5 · Phase 4: base ✓, "training removes it" · Phase 5: base ✓, "not training" | **Present in both base models tested** (Qwen3-1.7B-Base, SmolLM2-1.7B): quiet MLP activations matter more than an equal energy of mid-tier ones. **Post-training can remove it but doesn't always**: it vanished in Qwen3-1.7B-instruct, stayed in SmolLM2-1.7B-Instruct. Absent in both instruct Gemmas. ⚠️ Corrected 2026-10-20: the earlier Gemma 3 "layer 11" result was a calibration artifact. No evidence the signal is affect-specific. |
+| 2 Dark matter | run 1 → Phase 6 (see ANALYSIS.md) | **All 3 base models tested (Qwen3, SmolLM2, Gemma 3) rely on their quiet MLP tail** more than an equal energy of mid-tier activations predicts. **3 of 4 instruct models don't**, the exception being lightly tuned SmolLM2-Instruct. A pre-registered test **falsified** the idea that distillation causes the loss. ⚠️ Corrected 2026-10-20: an earlier Gemma 3 "layer 11" result was a calibration artifact. No evidence the signal is affect-specific. |
 | 3 KV as weights | 3/3 held | Exact for linear attention (known result). In Qwen3, context changes each head's local map by about its own size. Its low rank is mostly forced by short contexts, so it is not a finding. |
 | 4 Empathy as MDL | 3/3 held | A latent state model compresses best only when the world has low-dimensional structure. A toy; says nothing about feelings. |
 
@@ -38,6 +38,7 @@ python run.py 2f       # exploratory Idea 2 follow-up
 python run.py 2p       # Idea 2 Phase 2 (needs the Gemma models and data/, see below)
 python run.py 2q       # Idea 2 Phase 3 (same requirements)
 python run.py 2r       # Idea 2 Phase 4 (also needs models/qwen3-1.7b/ = Qwen/Qwen3-1.7B @ 70d244cc)
+python run.py 2t       # Idea 2 Phase 6 (models/gemma-3-1b-pt = google/gemma-3-1b-pt @ fcf18a2a, gated)
 python run.py 2s       # Idea 2 Phase 5 (models/SmolLM2-1b-base = HuggingFaceTB/SmolLM2-1.7B @ effd688a,
                        #   models/smollm2-1.7b-instruct = HuggingFaceTB/SmolLM2-1.7B-Instruct @ 31b70e2e)
 ```
