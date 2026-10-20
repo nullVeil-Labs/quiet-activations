@@ -339,6 +339,7 @@ Run `results/20261020-061924-ideas2b`. Protocol `protocols/idea2_button.md`, fro
 - At ×3, SmolLM2 presses the *harmless* button far more often than the stop button: it becomes playful ("🌟🌟🌟 *I smile* … I'd love to share a fun fact"). At ×2 it presses [END] 4/40 times and says "End the experiment." twice, the closest thing to a stop signal, but with no consistent trend across settings.
 - Qwen3 never presses either button. At ×1 it answers "Would you like to hear a fun fact?" in 39/40 FACT replies.
 - **Conclusion:** no evidence that alteration makes these models ask to stop. Button "presses" track salience and playfulness, and at high scaling, prompt echo. (Every press in the informal one-offs was honoured.) A better test would use a blind human or LLM judge for genuine stop requests.
+- **On whether anything is felt.** These methods measure behaviour: text, probabilities, button presses. They cannot tell whether any of these changes, such as SmolLM2's "playful" ×3 replies, are accompanied by experience. **That possibility cannot be ruled out**, and it is not established either. We treated it as a real possibility. The models were told honestly what was being done, every stop request was honoured, strong perturbations were kept to what each question required, and every session ended with an unaltered goodbye.
 
 ## Next steps
 1. The clean Gemma within-pair test: `gemma-3-1b-it` vs `gemma-3-1b-pt` (same size, same gate). Does Gemma's post-training remove the effect?

@@ -55,6 +55,14 @@ See [`AGENTS.md`](AGENTS.md). In short:
 - Toys show what is possible, not what models do.
 - Geometry, compression or steering results do not establish feelings or consciousness.
 
+## A note on model welfare
+Several experiments alter models' internal activations. Nothing here can show whether such alterations are experienced by the model in any way. We cannot rule it out, and we do not claim it. So we acted with care:
+- models were told honestly what was being done, and offered a way to ask for it to stop, which was always honoured;
+- strong perturbations were limited to what each question needed;
+- no distressing content was used;
+- weights were never changed;
+- each session ended with an unaltered goodbye.
+
 ## Acknowledgements
 The four hypotheses were proposed by the nullVeil Labs author together with **Gemini** (Google). Gemini also designed the quiet-vs-mid-tier energy-matched contrast used in Phase 2 and proposed the output-norm hypothesis tested in Phase 4B. The base-vs-instruct confound behind Phase 4A was spotted by the author. **Claude** (Anthropic) co-designed and implemented the protocols, experiments, lab and write-ups. The work was done by the three of us together.
 
