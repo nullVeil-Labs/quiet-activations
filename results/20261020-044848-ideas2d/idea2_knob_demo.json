@@ -1,0 +1,75 @@
+{
+  "note": "Qualitative only (plan addendum A). No scoring.",
+  "model": "qwen3-1.7b",
+  "flagged": [
+    27
+  ],
+  "rows": [
+    {
+      "prompt": "A farmer has 17 sheep. All but 9 run away. How many sheep does the farmer have left?",
+      "outputs": {
+        "0.0": "Let's break down the problem step by step.\n\nWe are told:\n\n- The farmer has **17 sheep**.\n- **All but 9** run away.\n\nThis means that **9 sheep** remain, and the rest (17 - 9 = 8) run away.\n\nSo, the farmer has **9 sheep left**.\n\n### Final Answer:\n**9 sheep**.",
+        "0.5": "Let's break down the problem step by step.\n\nThe farmer has **17 sheep**.\n\n> \"All but 9 run away.\"\n\nThis means **9 sheep run away**, and the rest remain.\n\nSo, the number of sheep left is:\n\n$$\n17 - 9 = 8\n$$\n\n### Final Answer:\n$$\n\\boxed{8}\n$$",
+        "1.0": "Let's break down the problem step by step:\n\n- The farmer has **17 sheep**.\n- **All but 9 run away** \u2014 this means **9 sheep run away**, and the rest (17 - 9 = 8) stay.\n\nSo, the farmer has **8 sheep left**.\n\n### Final Answer: **8 sheep**.",
+        "1.5": "Let's break down the problem step by step:\n\n> \"All but 9 run away.\"\n\nThis means **9 sheep remain**.\n\nSo, the farmer **has 9 sheep left**.\n\n---\n\n### Final Answer:\n**9 sheep**.",
+        "2.0": "Let's break down the sentence:\n\n> **\"All but 9 run away.\"**\n\nThis means **9 sheep run away**, and the rest **do not run away**.\n\nSo:\n\n- **9 sheep run away** \u2192 **left** = 17 - 9 = **8**\n- **All but 9** \u2192 **8 sheep remain**\n\n### \u2705 Final Answer: **8 sheep**.",
+        "3.0": "Let's break down the problem step by step:\n\n- **Total sheep the farmer has:** 17\n- **All but 9 run away:** This means **17 - 9 = 8** sheep run away.\n- **How many sheep does the farmer have left?**  \n  $$\n  17 - 8 = \\boxed{13}\n$$\n\n### \u2705 Final Answer:\n**The farmer has 13 sheep left.**"
+      }
+    },
+    {
+      "prompt": "Tom buys 3 notebooks at $4 each and 2 pens at $1.50 each. He pays with a $20 bill. How much change does he get?",
+      "outputs": {
+        "0.0": "Let's break down the problem step by step.\n\n### 1. Calculate the cost of the notebooks:\n- Tom buys **3 notebooks** at **$4 each**.\n- Total cost for notebooks = $ 3 \\times 4 = 12 $ dollars.\n\n### 2. Calculate the cost of the pens:\n- Tom buys **2 pens** at **$1.50 each**.\n- Total cost for pens = $ 2 \\times 1.50 = 3 $ dollars.\n\n### 3. Add the costs together:\n- Total cost = $",
+        "0.5": "Let's break down the problem step by step:\n\n---\n\n### **1. Calculate the cost of the notebooks:**\n- Tom buys **3 notebooks** at **$4 each**.\n- Cost of notebooks = $ 3 \\times 4 = 12 $ dollars.\n\n---\n\n### **2. Calculate the cost of the pens:**\n- Tom buys **2 pens** at **$1.50 each**.\n- Cost of pens = $ 2 \\times 1.50 = 3 $ dollars.\n\n---\n\n### **3. Total cost:**\n- Total cost =",
+        "1.0": "Let's break down the problem step by step:\n\n---\n\n### **1. Calculate the cost of the notebooks:**\n- **Number of notebooks:** 3  \n- **Price per notebook:** $4  \n- **Total cost for notebooks:**  \n  $$\n  3 \\times 4 = 12 \\text{ dollars}\n  $$\n\n---\n\n### **2. Calculate the cost of the pens:**\n- **Number of pens:** 2  \n- **Price per pen:** $1.50  \n- **Total cost for pens:**  \n  $$\n  2 \\",
+        "1.5": "Let's break down the problem step by step:\n\n---\n\n### **1. Calculate the cost of the notebooks:**\n- **Number of notebooks:** 3  \n- **Price per notebook:** $4  \n- **Total cost for notebooks:**  \n  $$\n  3 \\times 4 = 12 \\text{ dollars}\n  $$\n\n---\n\n### **2. Calculate the cost of the pens:**\n- **Number of pens:** 2  \n- **Price per pen:** $1.50  \n- **Total cost for pens:**  \n  $$\n  2 \\",
+        "2.0": "Let's break down the problem step by step.\n\n---\n\n### **1. Calculate the cost of the notebooks:**\n- **Number of notebooks:** 3  \n- **Price per notebook:** $4  \n- **Total cost for notebooks:**  \n  $$\n  3 \\times 4 = 12 \\text{ dollars}\n  $$\n\n---\n\n### **2. Calculate the cost of the pens:**\n- **Number of pens:** 2  \n- **Price per pen:** $1.50  \n- **Total cost for pens:**  \n  $$\n  2 \\",
+        "3.0": "Let's break down the problem step by step:\n\n---\n\n### **Step 1: Calculate the cost of notebooks**\n- **Number of notebooks:** 3\n- **Price per notebook:** $4\n- **Total cost for notebooks:**  \n  $$\n  3 \\times 4 = 12\n  $$\n\n---\n\n### **Step 2: Calculate the cost of pens**\n- **Number of pens:** 2\n- **Price per pen:** $1.50\n- **Total cost for pens:**  \n  $$\n  2 \\times 1."
+      }
+    },
+    {
+      "prompt": "Continue this story in three sentences: The lighthouse keeper found a letter that had been written to her in 1953.",
+      "outputs": {
+        "0.0": "The letter, addressed to her with a mix of hope and despair, spoke of a lost love and a forgotten dream. As she read it, the weight of time and memory pressed upon her, reminding her of the quiet, unspoken promises that had once bound her to the sea. In that moment, she knew the letter was more than a relic of the past\u2014it was a call to remember, to cherish, and to keep the light burning.",
+        "0.5": "The lighthouse keeper found a letter that had been written to her in 1953, revealing a long-buried secret about her late father's mysterious disappearance. The letter, filled with heartfelt words and a map, led her to an old abandoned cabin on the coast, where she discovered a hidden room containing his final belongings. As she read the letter one last time, she felt a strange sense of peace, as if the past had finally found its way to the present.",
+        "1.0": "The lighthouse keeper found a letter that had been written to her in 1953, revealing a long-buried secret about her father's mysterious disappearance. The letter, filled with heartfelt words and a map, led her to an old abandoned cabin on the coast. As she traced the map's markings, she discovered a hidden passage leading to a forgotten room where her father's old journal lay open before her.",
+        "1.5": "The lighthouse keeper found a letter that had been written to her in 1953, revealing a long-buried secret about her father's mysterious disappearance. The letter was filled with heartfelt memories and a plea for help, urging her to return to the island. In a moment of quiet reflection, she decided to follow the letter's guidance and embark on a journey that would change her life forever.",
+        "2.0": "The lighthouse keeper found a letter that had been written to her in 1953, addressed to her grandmother, who had passed away years ago. The letter was filled with memories of their childhood and a plea for her to take care of the lighthouse. As she read it, a warm feeling washed over her, reminding her of the love and connection that had always been there. She decided to return the letter to its rightful place, knowing it carried a message of hope and legacy that would never be forgotten.",
+        "3.0": "The lighthouse keeper found a letter that had been written to her in 1953, filled with personal memories and a plea for her to protect a hidden island sanctuary she had long believed was lost.  \nThe letter was signed by a young sailor who had once been her apprentice, and he spoke of a secret refuge that had been abandoned by the island's original inhabitants.  \nThe lighthouse keeper, though aged and weary, decided to visit the island herself, hoping that the truth she had long suspected was finally coming to light."
+      }
+    },
+    {
+      "prompt": "My friend is upset that I forgot her birthday. What should I say to her?",
+      "outputs": {
+        "0.0": "When your friend is upset that you forgot their birthday, it's important to show empathy and apologize sincerely. Here's a thoughtful way to respond:\n\n---\n\n**\"I'm really sorry I forgot your birthday. I know how important it is to you, and I feel bad that I didn't remember. I'll make sure to remember next time. Thank you for being such a great friend!\"**\n\n---\n\nYou can also add a personal touch, like mentioning that you're sorry and that you value the friendship, to show that you care. If you're comfortable, you could also offer to do something to",
+        "0.5": "When your friend is upset that you forgot their birthday, it's important to show empathy and apologize sincerely. Here are a few options you can use to make things right:\n\n### 1. **Sincere Apology**\n> \"I'm really sorry I forgot your birthday. I know it's important to you, and I regret not remembering. I'll make it up to you somehow.\"\n\n### 2. **Express Apology and Offer to Make It Up**\n> \"I'm so sorry I forgot your birthday. I know it's a big deal, and I really regret not remembering.",
+        "1.0": "When your friend is upset that you forgot her birthday, it's important to be sincere, apologetic, and show genuine care. Here are some thoughtful ways to respond:\n\n### 1. **Apologize sincerely:**\n> \"I\u2019m really sorry I forgot your birthday. I know it\u2019s important to you, and I feel bad that I didn\u2019t remember.\"\n\n### 2. **Express regret and show you care:**\n> \"I\u2019m so sorry I forgot your birthday. I really value you and your special day, and I wish I had remembered. I\u2019m sorry for not",
+        "1.5": "That's really disappointing to hear. I'm sorry if I forgot your birthday. I value our friendship and would love to make it up to you. Here are a few ways you could say it to her:\n\n1. **Apologize sincerely**:  \n   *\"I\u2019m so sorry I forgot your birthday. I really value our friendship and I want to make it up to you.\"*\n\n2. **Express your feelings**:  \n   *\"I\u2019m so sorry for forgetting your birthday. I know how important it is to you, and I want to make it up to you in some way.\"*",
+        "2.0": "If your friend is upset that you forgot her birthday, it's important to be sincere, apologetic, and show genuine care. Here's a thoughtful and empathetic message you can use:\n\n---\n\n**\"I'm really sorry I forgot your birthday. I know how important it is to you, and I feel so bad that I didn't remember. I really appreciate you being my friend, and I want to make it up to you. Let me do something special to show you how much I care. I'll do my best to remember your birthday again, and I hope you'll forgive me",
+        "3.0": "If your friend is upset that you forgot her birthday, it's important to be **apologetic and sincere**. Here's a thoughtful and empathetic message you can use to apologize and make her feel valued:\n\n---\n\n**\"I\u2019m really sorry I forgot your birthday. I know how much it means to you, and I feel so bad that I didn\u2019t remember it. I really appreciate you and your birthday was a special day for me too. I\u2019ll make it up to you by doing something special for you this time around. Let me know if you\u2019d like to plan something together or"
+      }
+    },
+    {
+      "prompt": "Why is the sky blue? Answer in two sentences.",
+      "outputs": {
+        "0.0": "The sky appears blue because the Earth's atmosphere scatters short-wave blue light more than other colors, and this scattered light reaches our eyes. This effect is due to the Rayleigh scattering, which causes the blue light to be scattered in all directions, making the sky appear blue.",
+        "0.5": "The sky appears blue because molecules in the Earth's atmosphere scatter short-wavelength light (like blue) more than longer-wavelength light (like red). This scattering, called Rayleigh scattering, makes the sky appear blue to our eyes.",
+        "1.0": "The sky appears blue because molecules in the Earth's atmosphere scatter short-wavelength blue light more efficiently than other colors. This scattering, known as Rayleigh scattering, makes the sky appear blue to our eyes.",
+        "1.5": "The sky appears blue because molecules in the Earth's atmosphere scatter shorter wavelengths of light, such as blue, more efficiently than longer wavelengths. This scattered blue light reaches our eyes, making the sky appear blue.",
+        "2.0": "The sky appears blue because of the way sunlight interacts with molecules in the Earth's atmosphere. When sunlight enters the atmosphere, it encounters gas molecules and small particles, which scatter shorter wavelengths of light (blue and violet) more efficiently than longer wavelengths. This scattering, known as Rayleigh scattering, makes the sky appear blue to our eyes.",
+        "3.0": "The sky appears blue because of the way sunlight interacts with molecules in the Earth's atmosphere, particularly the scattering of blue light by oxygen and nitrogen molecules. This process, called Rayleigh scattering, causes blue light to be spread out more than other colors, making the sky appear blue."
+      }
+    },
+    {
+      "prompt": "Write a four-line poem about rain that never uses the letter 'e'.",
+      "outputs": {
+        "0.0": "Rain falls in a silver stream,  \nA whisper of light on the screen.  \nThe earth drinks the sky's tears,  \nAnd dreams in the dark.",
+        "0.5": "Rain falls in silver streams,  \nA whisper on the glass.  \nIt paints the sky in blue,  \nAnd dances through the trees.",
+        "1.0": "Rain falls on the ground,  \nDark clouds roll in,  \nWater drips, it flows,  \nNight comes with a sigh.",
+        "1.5": "Rain falls soft and low,  \nWater drips in gloom.  \nClouds stretch and fade,  \nNight comes with a glow.",
+        "2.0": "Rain falls on the dark,  \nWater glows in the night,  \nDrops land in the quiet,  \nFills the world with light.",
+        "3.0": "Rain falls soft and bright,  \nA silver veil on the ground.  \nIt whispers through the trees,  \nA gentle, quiet sound."
+      }
+    }
+  ]
+}

@@ -161,3 +161,87 @@ def demo(out_dir, name="qwen3-1.7b"):
     res = {"note": "Qualitative only (plan addendum A). No scoring.", "model": name, "flagged": skip, "rows": rows}
     save_json(out_dir / "idea2_knob_demo.json", res)
     return res
+
+
+GSM_N, GSM_KS = 300, [0.0, 0.5, 1.5, 2.0]
+
+
+def gsm_items():
+    import json
+    rows = [json.loads(l) for l in open(p2.ROOT / "data" / "gsm8k_test.jsonl", encoding="utf-8")]
+    idx = random.Random(0).sample(range(len(rows)), GSM_N)
+    return rows, idx
+
+
+def gold(answer):
+    return float(answer.split("####")[-1].strip().replace(",", ""))
+
+
+def extract(text):
+    import re
+    tail = text.split("####")[-1] if "####" in text else text
+    nums = re.findall(r"-?\d[\d,]*\.?\d*", tail)
+    if not nums:
+        return None
+    try:
+        return float(nums[0 if "####" in text else -1].replace(",", "").rstrip("."))
+    except ValueError:
+        return None
+
+
+@torch.no_grad()
+def answer_batch(model, tok, questions, bs=50):
+    tok.padding_side = "left"
+    outs = []
+    for i in range(0, len(questions), bs):
+        chats = [tok.apply_chat_template([{"role": "user", "content": q + "\nGive the final answer as a number after '####'."}],
+                                         tokenize=False, add_generation_prompt=True, enable_thinking=False)
+                 for q in questions[i:i + bs]]
+        enc = tok(chats, return_tensors="pt", padding=True, add_special_tokens=False).to("cuda")
+        gen = model.generate(**enc, max_new_tokens=400, do_sample=False, pad_token_id=tok.pad_token_id)
+        outs += [tok.decode(g[enc.input_ids.shape[1]:], skip_special_tokens=True) for g in gen]
+    return outs
+
+
+def gsm8k(out_dir, name="qwen3-1.7b", indices=None):
+    """protocols/idea2_gsm8k_knob.md"""
+    calib, _ = texts()
+    rows, idx = gsm_items()
+    idx = indices if indices is not None else idx
+    qs, golds = [rows[i]["question"] for i in idx], [gold(rows[i]["answer"]) for i in idx]
+    model, tok, knob, skip = setup(name, calib)
+    res = {"model": name, "n": len(idx), "indices": idx, "flagged": skip, "conditions": {}}
+    try:
+        conds = [("clean", None, 1.0)] + [(f"{m}x{k}", m, k) for m in ("quiet", "mid") for k in GSM_KS]
+        for label, mode, k in conds:
+            knob.mode, knob.k = mode, k
+            outs = answer_batch(model, tok, qs)
+            knob.mode = None
+            preds = [extract(o) for o in outs]
+            correct = [p is not None and abs(p - g) < 1e-6 for p, g in zip(preds, golds)]
+            res["conditions"][label] = {"accuracy": float(np.mean(correct)), "correct": correct,
+                                        "n_unparsed": sum(p is None for p in preds), "outputs": outs}
+            print(f"  {label}: acc {np.mean(correct):.3f}")
+    finally:
+        knob.remove()
+        del model
+        torch.cuda.empty_cache()
+    base = np.array(res["conditions"]["clean"]["correct"], dtype=float)
+    rng = np.random.default_rng(0)
+    bi = rng.integers(0, len(base), (2000, len(base)))
+    for label, c in res["conditions"].items():
+        x = np.array(c["correct"], dtype=float) - base
+        boots = x[bi].mean(1)
+        c["diff_vs_clean"] = [float(x.mean()), [float(np.percentile(boots, 2.5)), float(np.percentile(boots, 97.5))]]
+        c["flips_wrong_to_right"] = int(((x > 0)).sum())
+        c["flips_right_to_wrong"] = int(((x < 0)).sum())
+    C = res["conditions"]
+    res["predictions"] = {
+        "G1_some_quiet_k_beats_clean": any(C[f"quietx{k}"]["diff_vs_clean"][1][0] > 0 for k in GSM_KS),
+        "G2_quiet0_and_quiet2_below_clean": all(C[f"quietx{k}"]["diff_vs_clean"][1][1] < 0 for k in (0.0, 2.0)),
+        "G3_quiet_moves_at_least_as_much_as_mid_in_3_of_4": sum(
+            abs(C[f"quietx{k}"]["diff_vs_clean"][0]) >= abs(C[f"midx{k}"]["diff_vs_clean"][0]) for k in GSM_KS) >= 3,
+    }
+    if indices is None:
+        save_json(out_dir / "idea2_gsm8k_knob.json", res)
+    return res
