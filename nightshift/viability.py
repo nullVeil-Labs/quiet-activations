@@ -18,14 +18,14 @@ TEMPS = np.round(np.arange(0.60, 1.601, 0.05), 2)
 N_BINS = 15
 
 
-def texts():
+def texts(eval_slice=EVAL_SLICE):
     calib, fit, evals = [], [], []
     for book in BOOKS:
         cs = p2.chunks(book)
         random.Random(0).shuffle(cs)
         calib += cs[:N_CALIB]
         fit += cs[FIT_SLICE]
-        evals += cs[EVAL_SLICE]
+        evals += cs[eval_slice]
     return calib, fit, evals
 
 
@@ -160,7 +160,7 @@ def summarise(rows, tau, frac, flagged, dims, bos):
                "mean_share_of_energy": float(np.median([v["mean_share_of_energy"] for v in dims.values()])),
                "centred_var_top_k": {str(k): float(np.median([v["centred_var_top_k"][str(k)] for v in dims.values()]))
                                      for k in KS}},
-           "conditions": {}}
+           "conditions": {}, "per_chunk": {"clean_ce": clean.tolist(), "dCE": {c: v.tolist() for c, v in dce.items()}}}
     for c in rows:
         conf = np.concatenate([r["conf"] for r in rows[c]])
         corr = np.concatenate([r["correct"] for r in rows[c]])
@@ -213,4 +213,45 @@ def run(out_dir):
             res["models"][name] = {"error": repr(e)}
             print("  FAILED:", repr(e))
         save_json(out_dir / "idea2_viability.json", res)
+    return res
+
+
+# ---------- confirmatory run (protocols/idea2_viability_confirmatory.md) ----------
+CONFIRM_SLICE = slice(100, 150)  # per book; [150:] stays reserved
+EFFECT_MODELS = ["qwen3-1.7b-base", "smollm2-1.7b", "smollm2-1.7b-instruct", "gemma-3-1b-pt"]
+LOWDIM_MODELS = ["smollm2-1.7b", "smollm2-1.7b-instruct", "gemma-3-1b-pt"]
+
+
+def mean_gap(m, k):
+    """Share of the MEAN-only damage removed by PC_k beyond RAND_k: (dCE_RAND_k - dCE_PC_k) / dCE_MEAN, bootstrapped."""
+    d = {c: np.array(v) for c, v in m["per_chunk"]["dCE"].items()}
+    return p2.boot_ratio(d[f"rand_{k}"] - d[f"pc_{k}"], d["mean"])
+
+
+def confirm(out_dir):
+    calib, fit, evals = texts(CONFIRM_SLICE)
+    res = {"n_calib": len(calib), "n_fit": len(fit), "n_eval": len(evals), "temps": TEMPS.tolist(), "models": {}}
+    for name in MODELS:
+        print(f" confirm {name}")
+        try:
+            m = run_model(name, calib, fit, evals)
+            m["mean_gap"] = {str(k): mean_gap(m, k) for k in RAND_KS}
+            res["models"][name] = m
+            print(f"  D = {m['D_zero_minus_mid']}  mean_gap = {m['mean_gap']}")
+        except Exception as e:  # reported, never hidden
+            res["models"][name] = {"error": repr(e)}
+            print("  FAILED:", repr(e))
+        save_json(out_dir / "idea2_viability_confirm.json", res)
+    M = res["models"]
+    ok = lambda n: "error" not in M[n]
+    temp = [M[n]["temperature"]["recovered_share_of_D"] for n in EFFECT_MODELS if ok(n)]
+    res["predictions"] = {
+        "C1_effect_replicates_in_all_4": all(ok(n) and M[n]["D_zero_minus_mid"][1][0] > 0 for n in EFFECT_MODELS),
+        "C2_top16_beat_random_in_all_3": all(ok(n) and M[n]["mean_gap"]["16"][0] >= 0.20 and M[n]["mean_gap"]["16"][1][0] > 0
+                                           for n in LOWDIM_MODELS),
+        "C3_qwen3_base_top256_beat_random": ok("qwen3-1.7b-base") and M["qwen3-1.7b-base"]["mean_gap"]["256"][1][0] > 0,
+        "C4_not_one_temperature_in_all_4": len(temp) == 4 and all(t is not None and t < 0.5 for t in temp),
+        "C5_qwen3_instruct_mostly_mean": ok("qwen3-1.7b") and M["qwen3-1.7b"]["conditions"]["mean"]["recovered_vs_zero"][0] >= 0.5,
+    }
+    save_json(out_dir / "idea2_viability_confirm.json", res)
     return res
