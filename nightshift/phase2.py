@@ -18,6 +18,7 @@ EXTRA_MODELS = {  # used by later phases, not by phase 2's run()
     "qwen3-1.7b": ROOT / "models" / "qwen3-1.7b",
     "smollm2-1.7b": ROOT / "models" / "SmolLM2-1b-base",  # HuggingFaceTB/SmolLM2-1.7B (base), folder name as downloaded
     "smollm2-1.7b-instruct": ROOT / "models" / "smollm2-1.7b-instruct",
+    "gemma-3-1b-pt": ROOT / "models" / "gemma-3-1b-pt",  # google/gemma-3-1b-pt (base, distilled in pre-training)
 }
 BOOKS = [ROOT / "data" / "pg1342.txt", ROOT / "data" / "pg1228.txt"]
 N_CALIB, N_EVAL, MAX_TOKENS = 20, 100, 256  # per book
