@@ -194,8 +194,24 @@ Run `results/20261020-035927-ideas2s`. Protocol `protocols/idea2_phase5.md`, fro
   - **Hypothesis (untested):** logit distillation from a much larger teacher reshapes the student's computation more than light SFT + DPO, including its reliance on the quiet tail. A cheap, observational first check: compare how far each instruct model's MLP weights moved from its base.
 - The Gemma nulls can't be attributed to training or architecture without a Gemma base model.
 
+## Idea 2 — weight drift, base → instruct (2026-10-20) · [exploratory, observational]
+Run `results/20261020-041345-ideas2w`. Plan `protocols/idea2_weight_drift_exploratory.md`, committed before the run. Weight files only, no forward passes. The measure is r = ‖W_inst − W_base‖ / ‖W_base‖ per tensor, median per group.
+
+| | Qwen3-1.7B (distilled) | SmolLM2-1.7B (SFT + DPO) |
+|---|---|---|
+| MLP | **0.094** (max 0.136) | **0.063** (max 0.082) |
+| attention | 0.094 | 0.057 |
+| `down_proj`, per-layer range | 0.070–0.114 | 0.047–0.064 |
+| embeddings | 0.093 | 0.096 |
+| norms | 0.002 | 0.014 |
+
+- As expected, Qwen3's MLP and attention weights moved further, about 1.5×.
+- But SmolLM2-Instruct's weights also moved substantially, about 6%. **An earlier remark in chat that SFT + DPO "barely moves the weights" was wrong.**
+- So the *size* of the weight change alone is unlikely to explain why the effect vanished in Qwen3 and was untouched in SmolLM2. *What kind* of change it was (e.g. distillation toward a larger model's computation) remains the leading, untested hypothesis.
+- Side observation: Qwen3-1.7B (instruct) has a separate `lm_head`, while its base ties it to the embeddings.
+
 ## Next steps
-1. A Gemma **base** model (gated; needs a licence acceptance), to separate family from training for Gemma.
+1. Phase 6 (frozen and pushed at commit 86ed461 before the model was downloaded): a **base** model distilled in pre-training, `gemma-3-1b-pt`. If it shows the effect, the distillation hypothesis is falsified.
 2. Test the recipe hypothesis: (a) the relative weight change, instruct vs base, per pair (observational); (b) more pairs with documented recipes, distillation-trained vs SFT/DPO-trained.
 3. A dose-response check (scaling the quiet tail by 0–3×, with a mid-tier control) in base and instruct models.
 4. *What* the quiet tail does where it matters, e.g. its effect on the calibration and entropy of next-token predictions. Then SAE features instead of neurons.
