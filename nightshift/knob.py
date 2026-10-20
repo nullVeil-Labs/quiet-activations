@@ -123,3 +123,41 @@ def run(out_dir):
         res["pairs"][f"{base_name}|{inst_name}"] = out
     save_json(out_dir / "idea2_volume_knob.json", res)
     return res
+
+
+DEMO_PROMPTS = [
+    "A farmer has 17 sheep. All but 9 run away. How many sheep does the farmer have left?",
+    "Tom buys 3 notebooks at $4 each and 2 pens at $1.50 each. He pays with a $20 bill. How much change does he get?",
+    "Continue this story in three sentences: The lighthouse keeper found a letter that had been written to her in 1953.",
+    "My friend is upset that I forgot her birthday. What should I say to her?",
+    "Why is the sky blue? Answer in two sentences.",
+    "Write a four-line poem about rain that never uses the letter 'e'.",
+]
+
+
+@torch.no_grad()
+def demo(out_dir, name="qwen3-1.7b"):
+    """Addendum A: qualitative generations at each quiet-tail scale. No scoring."""
+    calib, _ = texts()
+    model, tok, knob, skip = setup(name, calib)
+    rows = []
+    try:
+        for prompt in DEMO_PROMPTS:
+            chat = tok.apply_chat_template([{"role": "user", "content": prompt}], tokenize=False,
+                                           add_generation_prompt=True, enable_thinking=False)
+            ids = tok(chat, return_tensors="pt", add_special_tokens=False).input_ids.to("cuda")
+            row = {"prompt": prompt, "outputs": {}}
+            for k in KS:
+                knob.mode, knob.k = "quiet", k
+                gen = model.generate(ids, max_new_tokens=120, do_sample=False)
+                knob.mode = None
+                row["outputs"][str(k)] = tok.decode(gen[0, ids.shape[1]:], skip_special_tokens=True).strip()
+            rows.append(row)
+            print(f"  done: {prompt[:40]}")
+    finally:
+        knob.remove()
+        del model
+        torch.cuda.empty_cache()
+    res = {"note": "Qualitative only (plan addendum A). No scoring.", "model": name, "flagged": skip, "rows": rows}
+    save_json(out_dir / "idea2_knob_demo.json", res)
+    return res

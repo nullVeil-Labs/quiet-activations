@@ -24,6 +24,7 @@ IDEAS = {
     "2t": ("dark_matter_phase6", "nightshift.phase6"),
     "2w": ("dark_matter_weight_drift", "nightshift.weight_drift"),
     "2k": ("dark_matter_volume_knob", "nightshift.knob"),
+    "2d": ("dark_matter_knob_demo", "nightshift.knob", "demo"),
 }
 
 

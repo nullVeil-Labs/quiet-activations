@@ -29,3 +29,6 @@ What happens when the quiet tail is scaled **up** as well as down? And does turn
 ## Limitations
 - 58 chunks, a single MID seed, exploratory only.
 - KL to base measures base-likeness, not quality or creativity.
+
+## Addendum A — 2026-10-20, before running: what does the model *say* at each setting? (qualitative)
+The author's actual question is not "does it become base-like?" but "does it get **better** at something, or behave **strangely**?". As a first, purely qualitative look: Qwen3-1.7B (instruct), non-thinking mode, chat template, greedy decoding, max 120 new tokens. Six fixed prompts (in `nightshift/knob.py`, `DEMO_PROMPTS`): a riddle, an arithmetic word problem, a story opening, advice, a factual question and a creative constraint. Quiet ×k for k ∈ {0, 0.5, 1, 1.5, 2, 3}, all outputs saved verbatim. **No scoring and no claims**: this is only to find what is worth measuring. A capability test (GSM8K) gets its own plan.
