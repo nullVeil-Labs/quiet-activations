@@ -8,10 +8,10 @@ Do the many small ("quiet") MLP activations in LLMs matter more than their size 
 
 Each protocol was frozen (committed) before its run; from Phase 2 on, together with its code. Failures are reported as failures.
 
-**Status (2026-10-20):** run 1 is complete for all four ideas. Idea 2 also has pre-registered Phases 2–6, a capability test (GSM8K), two introspection tests and an [END]-button test, plus several exploratory runs, across 7 models. Every number up to the [END]-button test was independently fact-checked against the raw results. The newest exploratory run (viability: the quiet write's useful part sits in a few principal directions per layer, and is not a temperature effect) has not been fact-checked yet.
+**Status (2026-10-20):** run 1 is complete for all four ideas. Idea 2 also has pre-registered Phases 2–6, a capability test (GSM8K), two introspection tests and an [END]-button test, plus several exploratory runs, across 7 models. Every number up to the [END]-button test was independently fact-checked against the raw results. The newest runs (viability, exploratory then pre-registered: on unseen text, the quiet write's useful part sits in a few principal directions per layer, and is not a temperature effect; all 5 predictions held) have not been independently fact-checked yet.
 - Results: [`ANALYSIS.md`](ANALYSIS.md).
 - Prior work: [`RELATED_WORK.md`](RELATED_WORK.md).
-- **Next step:** a confirmatory test of the viability result on the new corpus's reserved chunks; then the same-size Gemma pair (`gemma-3-1b-pt` vs `gemma-3-1b-it`).
+- **Next step:** what the top quiet directions do in conversation (SmolLM2-Instruct); then the same-size Gemma pair (`gemma-3-1b-pt` vs `gemma-3-1b-it`).
 - Note: in Gemma-3-1B-pt, replacing the quiet write with its mean hurts more than deleting it, so mean-ablation is not a neutral baseline there.
 
 | Idea | Pre-registered predictions | Headline |
@@ -52,6 +52,7 @@ python run.py 2i       # introspection, forced choice (Qwen3 instruct, Gemma-3-4
 python run.py 2n       # introspection, neutral (same models)
 python run.py 2b       # [END] button (SmolLM2-Instruct, Qwen3 instruct)
 python run.py 2v       # viability: quiet-write structure and temperature (5 models; needs data/pg84.txt, data/pg2701.txt)
+python run.py 2c       # viability, confirmatory (same requirements)
 ```
 Phase 4 Part B (`2r`) also needs both Gemma models.
 Phases 2 and 3 also need:

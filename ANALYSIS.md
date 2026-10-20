@@ -373,10 +373,29 @@ Run `results/20261020-161120-ideas2v`. Protocol `protocols/idea2_viability_explo
 - **Descriptive:** clean ECE is 0.175 in Qwen3-1.7B (T* = 1.25) and 0.034 in SmolLM2-Instruct; base models 0.010–0.045. The instruct model that kept the effect also kept a base-like output distribution. Two instruct models only, and SmolLM2's weights also moved less in post-training, so this is a hint.
 - **Kind of evidence:** exploratory, one run, five models ≤ 1.7B. PCA ranks directions by variance, not importance. The structure result needs the confirmatory run on the reserved chunks before it is a finding.
 
+## Idea 2 — viability, confirmatory · C1 ✓ C2 ✓ C3 ✓ C4 ✓ C5 ✓ · [real]
+Run `results/20261020-170554-ideas2c`. Protocol `protocols/idea2_viability_confirmatory.md`, frozen with its code at commit 720c27e. 100 chunks no run had read ([100:150] of Gutenberg #84 and #2701).
+
+| | D [95% CI] | mean gap k=16 [CI] | mean gap k=256 [CI] | temperature share of D | MEAN vs ZERO |
+|---|---|---|---|---|---|
+| Qwen3-1.7B-Base | +0.033 [+0.028, +0.038] | 0.15 [0.09, 0.21] | 0.39 [0.31, 0.48] | 0.00 | fixes 39% |
+| Qwen3-1.7B | +0.007 [−0.005, +0.018] | −0.85 | −0.63 | n/a (D ≈ 0) | fixes 66% [53%, 80%] |
+| SmolLM2-1.7B | +0.024 [+0.017, +0.030] | **0.36** [0.31, 0.41] | 0.52 [0.47, 0.57] | 0.39 | ≈ 0 |
+| SmolLM2-1.7B-Instruct | +0.024 [+0.016, +0.031] | **0.36** [0.31, 0.41] | 0.51 [0.46, 0.56] | 0.04 | ≈ 0 |
+| Gemma-3-1B-pt | +0.023 [+0.018, +0.028] | **0.38** [0.34, 0.41] | 0.40 [0.35, 0.45] | 0.28 | worse (−63%) |
+
+Mean gap = (ΔCE_RAND_k − ΔCE_PC_k) / ΔCE_MEAN: the share of the MEAN-only damage that the top-k principal directions remove beyond k random ones.
+- **C1 ✓** the quiet-tail effect replicates in all four models, on unseen text. Qwen3-1.7B stays null.
+- **C2 ✓** in SmolLM2 (base and instruct) and Gemma-3-1B-pt, the top 16 directions per layer remove 36–38% of the MEAN-only damage beyond random directions. The exploratory values were 0.36–0.37.
+- **C3 ✓** in Qwen3-Base the structure is more spread out (0.15 at k=16), but the top 256 still clearly beat random (0.39).
+- **C4 ✓** one temperature recovers < 50% of D in all four (0–39%). SmolLM2-1.7B's share rose from 0.21 to 0.39, so in that model temperature explains a real minority.
+- **C5 ✓** in Qwen3-1.7B, MEAN alone fixes 66% of ZERO's damage (exploratory: 80%). In Qwen3-1.7B, PC_k is again worse than MEAN (negative gaps), the oddity seen in the exploratory run.
+- **Kind of evidence:** pre-registered, one corpus genre, five models ≤ 1.7B. The PCs were fitted on the same chunks as in the exploratory run, so this tests new evaluation text, not a new fit.
+
 ## Next steps
 1. The clean Gemma within-pair test: `gemma-3-1b-it` vs `gemma-3-1b-pt` (same size, same gate). Does Gemma's post-training remove the effect?
 2. More base/instruct pairs with documented recipes (distillation-trained vs SFT/DPO-trained), to test which part of post-training removes the effect.
-3. Confirmatory tests on the new corpus's reserved chunks ([100:] of Gutenberg #84 and #2701): the quiet-write structure result, then of the quiet ×0.5 CE oddity in Qwen3 instruct and the Gemma ×1.5–×2 introspection hint.
+3. Further confirmatory tests on the new corpus's remaining reserved chunks ([150:] of Gutenberg #84 and #2701): of the quiet ×0.5 CE oddity in Qwen3 instruct and the Gemma ×1.5–×2 introspection hint.
 4. The knob on a **base** model's capability, where the quiet tail *is* relied on (needs a few-shot benchmark format for base models).
 5. *What* the quiet tail does where it matters, e.g. its effect on the calibration and entropy of next-token predictions. Then SAE features instead of neurons.
 6. A scale test (≈ 8B base/instruct pairs) for the main effect and for introspection.
