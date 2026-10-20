@@ -8,10 +8,11 @@ Do the many small ("quiet") MLP activations in LLMs matter more than their size 
 
 Each protocol was frozen (committed) before its run; from Phase 2 on, together with its code. Failures are reported as failures.
 
-**Status (2026-10-20):** run 1 is complete for all four ideas. Idea 2 also has pre-registered Phases 2–6, a capability test (GSM8K), two introspection tests and an [END]-button test, plus several exploratory runs, across 7 models. Every number was independently fact-checked against the raw results.
+**Status (2026-10-20):** run 1 is complete for all four ideas. Idea 2 also has pre-registered Phases 2–6, a capability test (GSM8K), two introspection tests and an [END]-button test, plus several exploratory runs, across 7 models. Every number up to the [END]-button test was independently fact-checked against the raw results. The newest exploratory run (viability: the quiet write's useful part sits in a few principal directions per layer, and is not a temperature effect) has not been fact-checked yet.
 - Results: [`ANALYSIS.md`](ANALYSIS.md).
 - Prior work: [`RELATED_WORK.md`](RELATED_WORK.md).
-- **Next step:** the same-size Gemma pair (`gemma-3-1b-pt` vs `gemma-3-1b-it`), and a new held-out corpus for confirmatory follow-ups.
+- **Next step:** a confirmatory test of the viability result on the new corpus's reserved chunks; then the same-size Gemma pair (`gemma-3-1b-pt` vs `gemma-3-1b-it`).
+- Note: in Gemma-3-1B-pt, replacing the quiet write with its mean hurts more than deleting it, so mean-ablation is not a neutral baseline there.
 
 | Idea | Pre-registered predictions | Headline |
 |---|---|---|
@@ -50,12 +51,13 @@ python run.py 2g       # knob on GSM8K (Qwen3 instruct; needs data/gsm8k_test.js
 python run.py 2i       # introspection, forced choice (Qwen3 instruct, Gemma-3-4B-it)
 python run.py 2n       # introspection, neutral (same models)
 python run.py 2b       # [END] button (SmolLM2-Instruct, Qwen3 instruct)
+python run.py 2v       # viability: quiet-write structure and temperature (5 models; needs data/pg84.txt, data/pg2701.txt)
 ```
 Phase 4 Part B (`2r`) also needs both Gemma models.
 Phases 2 and 3 also need:
 - `models/gemma-3-4b-it/` (`google/gemma-3-4b-it`, Gemma license)
 - `models/gemma-4/` (`google/gemma-4-E4B-it`)
-- `data/pg1342.txt` and `data/pg1228.txt` from `https://www.gutenberg.org/cache/epub/<id>/pg<id>.txt` (sha256 in `protocols/idea2_phase2.md`)
+- `data/pg1342.txt` and `data/pg1228.txt` from `https://www.gutenberg.org/cache/epub/<id>/pg<id>.txt` (sha256 in `protocols/idea2_phase2.md`); `2v` also needs `data/pg84.txt` and `data/pg2701.txt` from the same URL pattern (sha256 in `protocols/idea2_viability_exploratory.md`)
 Ideas 1–3 need the model weights; Idea 4 and the toy parts don't.
 Download **Qwen3-1.7B-Base** from Hugging Face (`Qwen/Qwen3-1.7B-Base`) into `models/qwen3-1.7b-base/`. The weights are not included in this repo.
 A CUDA GPU is recommended. On one RTX 4090, `all` takes about a minute and each Idea 2 phase 10–30 minutes.

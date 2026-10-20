@@ -43,3 +43,6 @@ Before hunting for "circuits" in the quiet tail, two viability checks:
 
 ## Note before the run
 The code was smoke-tested on SmolLM2-1.7B-Instruct with 6 calibration chunks and 8 direction-fitting chunks (4 fitting, 4 standing in for evaluation). No evaluation chunk was read. Those numbers were seen before this commit; the decision rules above were written before the smoke test and are unchanged.
+
+## Amendment — 2026-10-20, after the run
+- The structure rule compares PC_k with RAND_k as shares of ZERO's damage. Both conditions contain the mean write. In Gemma-3-1B-pt the mean alone is worse than ZERO, so these shares are negative for RAND_k and the rule's gaps look large. The rule is unchanged and its verdicts stand as registered. ANALYSIS.md additionally reports the share of the **MEAN-only** damage removed (1 − ΔCE_c / ΔCE_MEAN), which is post-hoc. On that view the Gemma verdict ("low-dimensional") is also supported.

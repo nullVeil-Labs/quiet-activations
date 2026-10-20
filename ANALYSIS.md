@@ -342,10 +342,41 @@ Run `results/20261020-061924-ideas2b`. Protocol `protocols/idea2_button.md`, fro
 - **Conclusion:** no evidence that alteration makes these models ask to stop. Button "presses" track salience and playfulness, and at high scaling, prompt echo. (In the informal one-offs, every press was honoured; those chats were not logged. In this 40-sample run, each cell was generated in one batch, so a press could not stop anything; each reply was independent and no alteration persisted.) A better test would use a blind human or LLM judge for genuine stop requests.
 - **On whether anything is felt.** These methods measure behaviour: text, probabilities, button presses. They cannot tell whether any of these changes, such as SmolLM2's "playful" ×3 replies, are accompanied by experience. **That possibility cannot be ruled out**, and it is not established either. We treated it as a real possibility where the design allowed. In the button test and the informal chats, models were told honestly what was being done and offered a stop (honoured in the one-offs), and the button run ended with an unaltered goodbye. Across all runs, weights were never changed and strong perturbations were limited to what each question required. The automated CE, benchmark and forced-choice runs did not disclose the intervention.
 
+## Idea 2 — viability: is the quiet write structured, and is it calibration? (2026-10-20) · [exploratory]
+Run `results/20261020-161120-ideas2v`. Protocol `protocols/idea2_viability_exploratory.md`, frozen with its code at commit 6e58f28. New corpus: Gutenberg #84 and #2701; per book [0:100] used here, [100:] reserved.
+- **Why:** a neuron is quiet on some tokens and loud on others, so "quiet neurons" are not fixed units. The object that matters is the quiet write q = W_out(a ⊙ S). Is it low-dimensional, and is its job just output sharpness (one temperature)?
+- **The main effect replicates on new text.** D = ZERO − MID, 100 chunks:
+
+| | D [95% CI] | ΔCE ZERO | ΔCE MID |
+|---|---|---|---|
+| Qwen3-1.7B-Base | +0.035 [+0.029, +0.041] | 0.060 | 0.025 |
+| Qwen3-1.7B | +0.006 [−0.006, +0.018] | 0.047 | 0.041 |
+| SmolLM2-1.7B | +0.022 [+0.017, +0.028] | 0.087 | 0.065 |
+| SmolLM2-1.7B-Instruct | +0.023 [+0.016, +0.031] | 0.084 | 0.061 |
+| Gemma-3-1B-pt | +0.019 [+0.013, +0.025] | 0.055 | 0.035 |
+
+- **Structure.** q is replaced by its per-layer mean (MEAN) plus its projection on the top-k principal directions (PC_k) or on k random directions (RAND_k). Share of the MEAN-only damage removed by the token-varying part (post-hoc normalisation, see the protocol's amendment):
+
+| | PC_16 | RAND_16 | PC_64 | RAND_64 | PC_256 | RAND_256 | MEAN vs ZERO |
+|---|---|---|---|---|---|---|---|
+| Qwen3-1.7B-Base | 0.12 | 0.01 | 0.30 | 0.06 | 0.54 | 0.20 | MEAN fixes 44% of ZERO |
+| SmolLM2-1.7B | 0.37 | 0.01 | 0.45 | 0.03 | 0.58 | 0.11 | ≈ ZERO |
+| SmolLM2-1.7B-Instruct | 0.39 | 0.02 | 0.43 | 0.02 | 0.59 | 0.09 | ≈ ZERO |
+| Gemma-3-1B-pt | 0.41 | 0.04 | 0.49 | 0.09 | 0.67 | 0.28 | MEAN is **worse** than ZERO (0.089 vs 0.055) |
+
+  - In all three base models and SmolLM2-Instruct, the top principal directions carry far more of the quiet write's useful signal than random ones. The top 16 per layer (5–9% of its centred variance) carry ~40% in SmolLM2 and Gemma, 12% in Qwen3-Base.
+  - Pre-set verdicts: "low-dimensional" for SmolLM2 base and instruct and Gemma-3-1B-pt; "intermediate" for Qwen3-Base.
+  - Qwen3-Base's quiet write also has a large static part: in layers 1 and 18–20 the mean holds 28–33% of its energy, and MEAN alone fixes 44% of ZERO's damage.
+  - In Gemma-3-1B-pt, the mean holds 10% of the energy (median; 32% in layer 0), and adding it back *without* the varying part hurts more than deleting q. Mean-ablation is therefore not a neutral baseline for Gemma. Why is open (a post-FFN-norm interaction is one untested guess).
+- **Not one temperature.** With T fitted on half the chunks, one temperature recovers 0% of D (Qwen3-Base), 0.3% (SmolLM2-Instruct), 21% (SmolLM2) and 34% (Gemma-3-1B-pt). Verdicts: not calibration-like / partial. Entropy effects of ZERO go in different directions: +0.22 nats in Qwen3-Base (MID +0.04), −0.08 in SmolLM2 (MID −0.02), ≈ 0 in SmolLM2-Instruct. ECE rises under ZERO in SmolLM2 (0.010 → 0.030) but also under MID (0.023–0.025); ECE is unsigned, so this does not show over- or under-confidence.
+- **Qwen3-1.7B (instruct):** MEAN alone recovers 80% [62%, 100%] of ZERO's damage, so its quiet write's value is mostly a static offset. Oddity: keeping the top 16 PCs on top of the mean is *worse* than the mean alone (ΔCE 0.028 vs 0.009), while random directions are harmless. Not explained.
+- **Descriptive:** clean ECE is 0.175 in Qwen3-1.7B (T* = 1.25) and 0.034 in SmolLM2-Instruct; base models 0.010–0.045. The instruct model that kept the effect also kept a base-like output distribution. Two instruct models only, and SmolLM2's weights also moved less in post-training, so this is a hint.
+- **Kind of evidence:** exploratory, one run, five models ≤ 1.7B. PCA ranks directions by variance, not importance. The structure result needs the confirmatory run on the reserved chunks before it is a finding.
+
 ## Next steps
 1. The clean Gemma within-pair test: `gemma-3-1b-it` vs `gemma-3-1b-pt` (same size, same gate). Does Gemma's post-training remove the effect?
 2. More base/instruct pairs with documented recipes (distillation-trained vs SFT/DPO-trained), to test which part of post-training removes the effect.
-3. A new held-out corpus (the Gutenberg chunks are used up), then confirmatory tests of the quiet ×0.5 CE oddity in Qwen3 instruct and the Gemma ×1.5–×2 introspection hint.
+3. Confirmatory tests on the new corpus's reserved chunks ([100:] of Gutenberg #84 and #2701): the quiet-write structure result, then of the quiet ×0.5 CE oddity in Qwen3 instruct and the Gemma ×1.5–×2 introspection hint.
 4. The knob on a **base** model's capability, where the quiet tail *is* relied on (needs a few-shot benchmark format for base models).
 5. *What* the quiet tail does where it matters, e.g. its effect on the calibration and entropy of next-token predictions. Then SAE features instead of neurons.
 6. A scale test (≈ 8B base/instruct pairs) for the main effect and for introspection.
