@@ -51,6 +51,7 @@ python run.py 2w       # weight drift base -> instruct (Qwen3 and SmolLM2 pairs;
 python run.py 2k       # quiet-volume knob (Qwen3 and SmolLM2 pairs)
 python run.py 2d       # knob, qualitative generations (Qwen3 instruct)
 python run.py 2g       # knob on GSM8K (Qwen3 instruct; needs data/gsm8k_test.jsonl, see its protocol)
+python run.py 2h       # knob on hallucination: SimpleQA + TruthfulQA MC1 (needs data files, see its protocol)
 python run.py 2i       # introspection, forced choice (Qwen3 instruct, Gemma-3-4B-it)
 python run.py 2n       # introspection, neutral (same models)
 python run.py 2b       # [END] button (SmolLM2-Instruct, Qwen3 instruct)

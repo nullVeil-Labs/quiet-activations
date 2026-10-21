@@ -16,4 +16,4 @@ Checked 2026-10-19. `requirements.txt` pins the full tree (44 packages), and the
 - Gemma-3-1B-pt (`google/gemma-3-1b-pt` @ `fcf18a2a`) and Gemma-3-4B-it (`google/gemma-3-4b-it`, local copy; revision not recorded), Gemma Terms of Use.
 - Gemma-4-E4B-it (`google/gemma-4-E4B-it`, local copy; revision not recorded), Apache-2.0 per its model card.
 
-**Data** (not committed; sources and sha256 in the protocols): Project Gutenberg #1342 and #1228 (`protocols/idea2_phase2.md`); GSM8K test set, MIT (`protocols/idea2_gsm8k_knob.md`).
+**Data** (not committed; sources and sha256 in the protocols): Project Gutenberg #1342 and #1228 (`protocols/idea2_phase2.md`); GSM8K test set, MIT (`protocols/idea2_gsm8k_knob.md`); SimpleQA, MIT, and TruthfulQA MC, Apache-2.0 (`protocols/idea2_hallucination_knob.md`).
