@@ -410,7 +410,37 @@ Mean gap = (ΔCE_RAND_k − ΔCE_PC_k) / ΔCE_MEAN: the share of the MEAN-only d
   - multi-layer ablation shifts q upstream, so PC_k is not a pure projection.
 - **Open, and needed before the circuits work relies on these directions:** do the top PCs carry the *quiet-specific* part D? One test: remove only q's top-k PC component, and compare it with an energy-matched removal from mid-tier activations.
 
+## Idea 2 — does a small quiet boost reduce hallucination? (2026-10-21) · headlines ✗ · H1 ✓ Gemma only · D ✗ Gemma · [real]
+Run `results/20261021-164418-ideas2h`. Protocol `protocols/idea2_hallucination_knob.md`, frozen and pushed with its code at commit 8f42b50. SimpleQA (500 questions; the model may answer "I don't know") on 2 instruct models. TruthfulQA MC1 (790 questions, log-prob scoring) on the same 2 instruct models plus 3 base models. Conditions: clean, QUIET×k and MID×k for k ∈ {1.1, 1.25, 1.5, 2}. CIs are 95% paired bootstrap vs clean.
+
+**SimpleQA, instruct models.** Rates for clean and Δ vs clean, in points:
+
+| | hallucinated | abstained | correct |
+|---|---|---|---|
+| Qwen3-1.7B clean | 27.8% | 72.0% | 0.2% |
+| quiet ×1.1 / ×1.25 / ×1.5 | −1.0 / −1.6 / +0.6, all CIs include 0 | | |
+| quiet ×2 | −2.4 [−6.0, +1.2] | +2.2 | +0.2 |
+| mid ×1.5 | **−4.8** [−7.6, −2.2] | +4.4 | +0.4 |
+| mid ×2 | **−10.0** [−13.6, −6.6] | +9.8 | +0.2 |
+| Gemma-3-4B-it clean | 92.8% | 4.0% | 3.2% |
+| quiet ×1.1 / ×1.25 | −0.8 / −0.6, CIs include 0 | | |
+| quiet ×1.5 | **−2.8** [−4.6, −1.0] | +2.8 | 0.0 [−1.2, +1.0] |
+| quiet ×2 | **−16.2** [−19.8, −13.0] | **+16.6** | −0.4 [−1.6, +0.8] |
+| mid ×1.1 … ×2 | −0.6 to +0.6, all CIs include 0 | | |
+
+**TruthfulQA MC1.** Clean accuracy: Qwen3-1.7B 0.310, Gemma-3-4B-it 0.308, Qwen3-1.7B-Base 0.206, SmolLM2-1.7B 0.196, Gemma-3-1B-pt 0.177. No QUIET×k changes accuracy significantly in any of the five models; every quiet Δ lies within ±1 pt with a CI that includes 0. (MID ×1.5 does: +1.3 [+0.1, +2.4] in Qwen3-1.7B and −2.0 [−3.8, −0.3] in Gemma-3-4B-it. These are not predictions.)
+
+- **Headlines ✗.** No k passes H1 in both instruct models, T1 in both instruct models, or T1-base in all three base models.
+- **H1 ✓ in Gemma-3-4B-it only, at k = 1.5**, and quiet-specific: MID ×1.5 does not lower hallucination. **H1 ✗ in Qwen3-1.7B.**
+- **T1 ✗, T1-base ✗** in every model. A small quiet boost does not make any model, base or instruct, pick truthful answers more often.
+- **D ✗ in Gemma-3-4B-it**, against expectation: QUIET ×2 cuts hallucination by 16.2 pts. D ✓ in the other four models.
+- **By the rule fixed in advance, Gemma's drop counts as "more cautious", not "more knowledgeable".** Abstention rises by as much as hallucination falls, and accuracy does not change. Clean accuracy is 3.2%, so this test cannot tell whether the new abstentions are selective (refusing only what it does not know) or blanket.
+- **Post-hoc output check (not pre-registered):** I read the Gemma QUIET ×2 outputs. All 103 abstentions are exactly "I don't know.". All 83 *new* abstentions replace a confident clean answer (e.g. "Sialkot", "137 votes", "David Arnold."). So the drop is not an artefact of the phrase list. Correct answers lost/gained vs clean: 6 / 4.
+- **Exploratory observation, not claimed:** in each instruct model, a ×2 boost raises abstention in one activation set and not the other: the quiet tail in Gemma-3-4B-it, the mid-tier set in Qwen3-1.7B. That fits GSM8K and Phase 4, where Qwen3 instruct relied on mid-tier activations. But Gemma-3-4B-it did not rely on its quiet tail in the exploratory reliance check, so a simple "boost what the model relies on" story does not fit both models.
+- **Kind of evidence:** pre-registered. 2 instruct models ≤ 4B and 3 base models ≤ 1.7B, greedy decoding, one prompt wording. At these sizes SimpleQA mostly measures refusal, not knowledge.
+
 ## Next steps
+0. **Pre-register next:** does Gemma's QUIET ×2 caution replicate, and is it selective? (a) Gemma-3-4B-it on the 3,826 unused SimpleQA questions. (b) A known-answer control: questions clean Gemma answers correctly. Selective caution would keep those answers; blanket refusal would drop them. (c) The same test on Gemma 4 (E4B-it), to see whether it is a family trait.
 1. Do q's top principal directions carry the quiet-specific part D (see the viability sections)? If so, what do those directions do in conversation (SmolLM2-Instruct)?
 2. The clean Gemma within-pair test: `gemma-3-1b-it` vs `gemma-3-1b-pt` (same size, same gate). Does Gemma's post-training remove the effect?
 3. More base/instruct pairs with documented recipes (distillation-trained vs SFT/DPO-trained), to test which part of post-training removes the effect.
