@@ -69,7 +69,8 @@ Download **Qwen3-1.7B-Base** from Hugging Face (`Qwen/Qwen3-1.7B-Base`) into `mo
 A CUDA GPU is recommended. On one RTX 4090, `all` takes about a minute and each Idea 2 phase 10–30 minutes.
 
 ## Ground rules
-See [`AGENTS.md`](AGENTS.md). In short:
+- Protocols in `protocols/` are frozen and committed before each run; later changes go in dated amendments.
+- Raw results are preserved under unique run IDs; failures and nulls are reported.
 - Toys show what is possible, not what models do.
 - Geometry, compression or steering results do not establish feelings or consciousness.
 
